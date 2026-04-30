@@ -8,7 +8,7 @@ const userModel = mongoose.Schema({
         required: true,
     },
     email: { type: String, required: true, unique: true },
-    role: { type: String, enum: ["Admin", "Member"], default: "Member" },
+    role: { type: String, enum: ["Teacher", "Student"], default: "Student" },
 });
 userModel.pre("save", async function(next)  {
     if (!this.isModified('password')) {
