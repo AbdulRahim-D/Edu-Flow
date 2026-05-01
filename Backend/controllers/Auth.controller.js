@@ -23,7 +23,7 @@ const userLogin=async (req, res) => {
     if (!isMatch) {
         return res.send("incorrect Password");
     }
-    const token = jwt.sign({ id: userData._id ,role:userData.role}, process.env.JWT_SECRET, { expiresIn: "10d" });
+    const token = jwt.sign({ id: userData._id ,name:userData.name,role:userData.role}, process.env.JWT_SECRET, { expiresIn: "10d" });
     res.cookie("token",token,{
         httpOnly:true
     }).status(200).json({ 
@@ -32,7 +32,6 @@ const userLogin=async (req, res) => {
         name:userData.name,
         email:userData.email,
          role: userData.role,
-         token:token
         })
 }
 module.exports={userSignUp,userLogin};

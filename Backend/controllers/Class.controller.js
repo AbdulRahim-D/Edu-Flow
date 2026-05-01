@@ -1,4 +1,5 @@
 const Class = require("../models/Class.model")
+const crypto = require("crypto");
 
 const createClass= async (req, res) => {
     try {
@@ -24,13 +25,30 @@ const joinClass=async (req, res) => {
             return res.status(403).json({ message: "access Denied! only Student can join the Class" })
         }
         const { classCode } = req.body
+
+        const existClass=await Class.findOne({classCode:classCode})
+        if(!existClass)
+             return res.status(404).json({message:"Class not Found"})
+        
+
+        if(existClass.students.includes(req.user.id))
+            return res.status(400).json({message:"you already in this class"})
+        
         const joinClass = await Class
             .findOneAndUpdate(
                 { classCode: classCode },
-                { $addToSet: { students: req.user.id } },
-                { new: true }
+                { $push: { students: req.user.id } },
+                { new: true,
+                    runValidators: true
+                 }
             )
-        if (!joinClass) return res.status(404).json({ message: "Class not Found!" })
+            if(joinClass){
+                req.io.to(joinClass._id.toString())
+                .emit("student_joined",{
+                    message:`${req.user.name} has joined the class`,
+                    studentId:req.user.id
+                })
+            }
         res.status(200).json({ message: "joined Class successfully!", data: joinClass })
     }
     catch (error) {

@@ -7,11 +7,18 @@ const assignmentSchema = new mongoose.Schema({
         trim: true 
     },
     description: { type: String },
+    grade: { 
+        type: String, 
+        default: "" 
+    },
+    feedback: { 
+        type: String, 
+        default: "" 
+    },
     
     subject: { 
         type: String, 
         required: true, 
-        enum: ["Mathematics", "Physics", "Computer Science", "English", "Other"], // Mee college subjects pettukondi
         default: "Other" 
     },
 
