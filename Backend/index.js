@@ -13,7 +13,7 @@ const classRouter = require("./routes/classRoutesAPI")
 const userRouter = require("./routes/userRoutesAPI")
 
 const app = express();
-const server = http.createServer(app)
+const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
@@ -61,6 +61,7 @@ app.use("/api/auth", authRouter)
 app.use("/api/tasks", taskRouter)
 app.use("/api/users", userRouter)
 
-server.listen(process.env.PORT||5000, () => {
+const PORT=process.env.PORT||5000
+server.listen(PORT, () => {
     console.log("Server running on " + process.env.PORT);
 })

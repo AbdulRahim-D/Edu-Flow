@@ -14,13 +14,13 @@ const userModel = mongoose.Schema({
     phone:{type:String,default:""},
     role: { type: String, enum: ["Teacher", "Student"], default: "Student" },
 });
-userModel.pre("save", async function(next) {
+userModel.pre("save", async function() {
     if (this.isModified('password')) {
         try {
             const salt = await bcrypt.genSalt(10);
             this.password = await bcrypt.hash(this.password, salt);
         } catch (error) {
-            return next(error);
+            throw error
         }
     }
 
@@ -31,8 +31,6 @@ userModel.pre("save", async function(next) {
             this.profileImage = "/uploads/profilePic/default-student.png";
         }
     }
-
-    next(); 
 });
 const User = mongoose.model("User", userModel);
 

@@ -1,5 +1,6 @@
 const Assignment = require("../models/Assignment.model")
 const Class=require("../models/Class.model")
+const mongoose=require("mongoose")
 
 const createAssignment = async (req, res) => {
     try {
@@ -95,13 +96,20 @@ const updateAssignmentStatus = async (req, res) => {
 const updateAssignmentGrade = async (req, res) => {
     try {
         const assignmentData=await Assignment.findOne({_id:req.params.id})
+        if (!assignmentData) {
+            return res.status(404).json({ message: "Assignment not found! Please check the ID." });
+        }
         if(assignmentData.assignedBy.toString()!==req.user.id)
             return res.status(400).json({message:"access Denied! you are not the Creator of this Assignment"})
 
-        const { status, grade, feedback } = req.body
+        const { status, grade, feedback,studentId} = req.body
         const updatedAssignmentGrade = await Assignment
             .findOneAndUpdate(
-                { _id: req.params.id, assignedBy: req.user.id },
+                { 
+                    _id: req.params.id,
+                     assignedBy: req.user.id,
+                     assignedTo:studentId
+                     },
                 { $set: { status, grade, feedback } },
                 { new: true,
                     runValidators: true
@@ -109,9 +117,9 @@ const updateAssignmentGrade = async (req, res) => {
             )
         if (!updatedAssignmentGrade) return res.status(404).json({ message: "Assignment not found" })
             else{
-                req.io.to(updateAssignmentGrade.classId.toString())
+                req.io.to(updatedAssignmentGrade.classId.toString())
                 .emit("grade_updated",{
-                    assignmentId:updateAssignmentGrade._id,
+                    assignmentId:updatedAssignmentGrade._id,
                     grade:grade
                 })
             }
