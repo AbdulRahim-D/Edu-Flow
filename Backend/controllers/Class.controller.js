@@ -90,14 +90,18 @@ const getAllClasses = async (req, res) => {
 const getClassById = async (req, res) => {
   try {
     const classId = req.params.id;
+
     if (!mongoose.Types.ObjectId.isValid(classId))
       return res.status(400).json({ message: "invalid class Format" });
+
     const singleClass = await Class.findOne({ _id: classId });
     if (!singleClass)
       return res.status(404).json({ message: "class not Found!" });
+
     return res
       .status(200)
       .json({ message: "fetched class successfully", data: singleClass });
+
   } catch (error) {
     return res
       .status(500)
