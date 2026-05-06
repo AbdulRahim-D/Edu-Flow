@@ -6,9 +6,14 @@ import ProtectedRoute from './components/ProtectedRoute'
 import DashboardLayout from './layouts/DashboardLayout'
 import TeacherDashboard from './pages/TeacherDashboard'
 import StudentDashboard from './pages/StudentDashboard'
+import LandPage from './pages/LandPage'
 
 function App() {
   const router=createBrowserRouter([
+      {
+      path:"/",
+      element:<LandPage/>
+    },
     {
       path:"/login",
       element:<Login/>

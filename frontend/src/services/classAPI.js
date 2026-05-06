@@ -31,6 +31,13 @@ export const classAPI = createApi({
       }),
       providesTags: ["Class"],
     }),
+    getClassById:builder.query({
+      query:(id)=>({
+        url:`/${id}`,
+        method:"GET",
+      }),
+      providesTags:["Class"]
+    }),
   }),
 });
 

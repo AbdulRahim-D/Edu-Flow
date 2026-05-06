@@ -43,9 +43,7 @@ function Login() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <Toaster position="top-center" reverseOrder={false} />
-
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
-        {/* Header Section */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-extrabold text-blue-600 mb-2">Edu-Flow</h1>
           <p className="text-slate-500 font-medium">Welcome back! Please login to your account.</p>
@@ -97,7 +95,6 @@ function Login() {
             )}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -113,8 +110,6 @@ function Login() {
             )}
           </button>
         </form>
-
-        {/* Footer Link */}
         <div className="mt-8 text-center">
           <p className="text-slate-600">
             Don't have an account?{" "}

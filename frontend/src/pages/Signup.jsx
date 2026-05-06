@@ -34,14 +34,12 @@ function Signup() {
       <Toaster position="top-center" />
 
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold text-blue-600 mb-2">Edu-Flow</h1>
           <p className="text-slate-500 font-medium">Join us! Create your account today.</p>
         </div>
 
         <form className="space-y-5" onSubmit={signupForm.handleSubmit}>
-          {/* Full Name */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
             <div className="relative">
@@ -62,7 +60,6 @@ function Signup() {
             )}
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
             <div className="relative">
@@ -83,7 +80,6 @@ function Signup() {
             )}
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1">Password</label>
             <div className="relative">
@@ -104,7 +100,6 @@ function Signup() {
             )}
           </div>
 
-          {/* Role Selection (Professional Cards) */}
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-3">Register as</label>
             <div className="grid grid-cols-2 gap-4">
@@ -137,7 +132,6 @@ function Signup() {
             )}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -154,7 +148,6 @@ function Signup() {
           </button>
         </form>
 
-        {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-slate-600">
             Already have an account?{" "}

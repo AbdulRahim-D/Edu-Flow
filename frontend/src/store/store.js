@@ -6,7 +6,7 @@ import { classAPI } from "../services/classAPI";
 export const store=configureStore({
     reducer:{
         auth:authReducer,
-        class:classRedcer,
+        class:classReducer,
         [classAPI.reducerPath]:classAPI.reducer,
         [authAPI.reducerPath]:authAPI.reducer,
         

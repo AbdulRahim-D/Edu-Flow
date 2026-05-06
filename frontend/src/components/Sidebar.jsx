@@ -13,7 +13,6 @@ function Sidebar() {
             <h1 className="text-2xl font-bold mb-10 text-blue-400">Edu-Flow</h1>
             
             <nav className="flex flex-col gap-4 flex-1">
-                {/* Dynamic Dashboard Link */}
                 <Link to={user?.role === "Teacher" ? "/teacher_dashboard" : "/student_dashboard"} className="flex text-black items-center gap-3 hover:text-blue-400">
                     <LayoutDashboard size={20}/> DashBoard
                 </Link>
@@ -31,7 +30,6 @@ function Sidebar() {
                 </Link>
             </nav>
 
-            {/* Logout Button at Bottom */}
             <button 
                 onClick={() => dispatch(logout())} 
                 className="flex items-center gap-3 text-red-400 hover:text-red-500 mt-auto pt-5 border-t border-slate-700"
