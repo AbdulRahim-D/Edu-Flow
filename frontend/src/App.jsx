@@ -2,11 +2,15 @@ import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import ProtectedRoute from './components/ProtectedRoute'
+import DashboardLayout from './layouts/DashboardLayout'
+import TeacherDashboard from './pages/TeacherDashboard'
+import StudentDashboard from './pages/StudentDashboard'
 
 function App() {
   const router=createBrowserRouter([
     {
-      path:"/",
+      path:"/login",
       element:<Login/>
     },
     {
@@ -14,12 +18,20 @@ function App() {
       element:<Signup/>
     },
     {
+    element:<DashboardLayout/>,
+    children:[
+       {
     path:"/teacher_dashboard",
-    element:<div>Comming soon teacher</div>
+    element:<ProtectedRoute><TeacherDashboard/> </ProtectedRoute>
     },
     {
     path:"/student_dashboard",
-    element:<div>Comming soon</div>
+    element:<ProtectedRoute><StudentDashboard/> </ProtectedRoute>
+
+    }
+    ]
+
+
     }
   ])
   return <RouterProvider router={router}/>
