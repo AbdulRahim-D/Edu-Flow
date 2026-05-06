@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const http = require("http")
 const { Server } = require("socket.io")
 const bodyParser = require("body-parser");
+const cors=require("cors")
 
 
 const authRouter = require("./routes/AuthRoutesAPI");
@@ -17,7 +18,8 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "*",
+        origin: "http://localhost:5173",
+        credentials:true,
         methods: ["GET", "POST", "PATCH", "PUT", "DELETE"]
     }
 })
@@ -38,6 +40,11 @@ io.on("connection", (socket) => {
 })
 
 
+app.use(cors({
+    origin:"http://localhost:5173",
+    methods:["GET","POST","PUT","PATCH","DELETE"],
+    credentials:true
+}))
 
 app.use(cookieParser());
 app.use(express.json());
@@ -50,7 +57,6 @@ app.use((req,res,next)=>{
     next();
 })
 
-DBconnect();
 
 app.get("/", (req, res) => {
     res.send("Edu-Flow Backend is On!")
@@ -61,7 +67,9 @@ app.use("/api/auth", authRouter)
 app.use("/api/tasks", taskRouter)
 app.use("/api/users", userRouter)
 
+
 const PORT=process.env.PORT||5000
+DBconnect();
 server.listen(PORT, () => {
     console.log("Server running on " + process.env.PORT);
 })
