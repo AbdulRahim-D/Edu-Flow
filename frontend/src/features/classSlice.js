@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   currentClass: null,
-    class:[],
+    classes:[],
     totalClasses:0,
 };
 const classSlice = createSlice({
@@ -10,7 +10,7 @@ const classSlice = createSlice({
   initialState,
   reducers: {
     setClasses:(state,action)=>{
-        state.class=action.payload
+        state.classes=action.payload
     },
     updateTotalClass:(state,action)=>{
         state.totalClasses=action.payload
@@ -19,8 +19,9 @@ const classSlice = createSlice({
       state.currentClass = action.payload;
     },
     clearClassStatus:(state)=>{
-        state.class=[],
-        currentClass=null
+        state.classes=[],
+        state.currentClass=null,
+        state.totalClasses=0
     }
   },
 });

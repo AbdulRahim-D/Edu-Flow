@@ -1,24 +1,42 @@
-import React from 'react';
-import { Loader2 } from 'lucide-react'; 
+import React from "react";
+import { Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
-function Loading() {
+const Loading = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] w-full gap-4">
-      
+    <div className="flex flex-col items-center justify-center min-h-[400px] w-full space-y-4">
       <div className="relative flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-slate-100 rounded-full"></div>
-        <div className="absolute w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <Loader2 className="absolute text-blue-600 animate-pulse" size={20} />
-      </div>
-      <div className="text-center">
-        <h2 className="text-lg font-bold text-slate-700 animate-pulse tracking-tight">
-          Loading Edu-Flow...
-        </h2>
-        <p className="text-sm text-slate-400 font-medium">Please wait a moment</p>
+        
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          className="absolute w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"
+        ></motion.div>
+
+        <motion.div
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+          className="absolute text-blue-500"
+        >
+          <Loader2 size={20} className="animate-spin" />
+        </motion.div>
       </div>
 
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-center"
+      >
+        <p className="text-slate-500 font-medium tracking-wide text-sm">
+          Fetching Dashboard Data...
+        </p>
+        <p className="text-slate-400 text-xs mt-1 italic">
+          Just a moment
+        </p>
+      </motion.div>
     </div>
   );
-}
+};
 
 export default Loading;

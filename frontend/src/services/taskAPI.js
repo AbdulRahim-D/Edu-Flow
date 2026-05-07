@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const taskAPI = createApi({
+export const taskAPI = createApi({
   reducerPath: "taskAPI",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:6142/api/tasks",
@@ -32,9 +32,16 @@ const taskAPI = createApi({
       }),
       invalidatesTags: ["Assignments"],
     }),
-    getMyAssignments: builder.query({
+    getStudentAssignment: builder.query({
       query: () => ({
-        url: "my-task",
+        url: "student-task",
+        method: "GET",
+      }),
+      providesTags: ["Assignments"],
+    }),
+    getTeacherAssignment: builder.query({
+      query: () => ({
+        url: "/teacher-task",
         method: "GET",
       }),
       providesTags: ["Assignments"],
@@ -60,7 +67,8 @@ export const {
   useCreateAssignmentMutation,
   useGetAssignmentStatsQuery,
   useGetClassWiseAssignmentsQuery,
-  useGetMyAssignmentsQuery,
+  useGetStudentAssignmentQuery,
+  useGetTeacherAssignmentQuery,
   useUpdateAssignmentGradeMutation,
   useUpdateAssignmentStatusMutation,
 } = taskAPI;

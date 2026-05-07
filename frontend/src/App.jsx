@@ -7,6 +7,7 @@ import DashboardLayout from './layouts/DashboardLayout'
 import TeacherDashboard from './pages/TeacherDashboard'
 import StudentDashboard from './pages/StudentDashboard'
 import LandPage from './pages/LandPage'
+import ClassPage from './pages/ClassPage'
 
 function App() {
   const router=createBrowserRouter([
@@ -27,16 +28,18 @@ function App() {
     children:[
        {
     path:"/teacher_dashboard",
-    element:<ProtectedRoute><TeacherDashboard/> </ProtectedRoute>
+    element:<ProtectedRoute allowedRole={"Teacher"}><TeacherDashboard/> </ProtectedRoute>
     },
     {
     path:"/student_dashboard",
-    element:<ProtectedRoute><StudentDashboard/> </ProtectedRoute>
-
+    element:<ProtectedRoute allowedRole={"Student"}><StudentDashboard/> </ProtectedRoute>
+    },
+    {
+    path:"/classes",
+    element:<ClassPage/>
     }
+
     ]
-
-
     }
   ])
   return <RouterProvider router={router}/>
