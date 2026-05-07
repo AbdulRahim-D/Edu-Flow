@@ -20,6 +20,6 @@ router.get("/myprofile", isAuthUser, myProfileDetails);
 
 router.patch("/update", isAuthUser, profileUpdate);
 
-router.get("/logout", accountLogout);
+router.post("/logout", accountLogout);
 
 module.exports = router;
