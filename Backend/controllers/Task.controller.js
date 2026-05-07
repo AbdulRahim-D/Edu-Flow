@@ -45,7 +45,7 @@ const createAssignment = async (req, res) => {
   }
 };
 
-const myAssignments = async (req, res) => {
+const studentAssignments = async (req, res) => {
   try {
     if (req.user.role !== "Student") {
       return res
@@ -208,12 +208,43 @@ const assignmentStats = async (req, res) => {
       .json({ message: "internal server Error", error: error.message });
   }
 };
+const teacherAssignments = async (req, res) => {
+  try {
+    const teacherId = req.user.id;
+
+    const allAssignments = await Assignment.aggregate([
+      { 
+        $match: { assignedBy: new mongoose.Types.ObjectId(teacherId) } 
+      },
+      {
+        $group: {
+          _id: "$title",
+          description: { $first: "$description" },
+          subject: { $first: "$subject" },
+          classId: { $first: "$classId" }, 
+          deadline: { $first: "$deadline" },
+          createdAt: { $first: "$createdAt" }
+        }
+      },
+      { $sort: { createdAt: -1 } }
+    ]);
+
+    res.status(200).json({
+      message: "All unique assignments across all classes fetched",
+      data: allAssignments,
+      totalCount: allAssignments.length
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
 
 module.exports = {
   createAssignment,
-  myAssignments,
+  studentAssignments,
   assignmentStats,
   updateAssignmentStatus,
   updateAssignmentGrade,
+  teacherAssignments,
   classWiseAssignment,
 };
