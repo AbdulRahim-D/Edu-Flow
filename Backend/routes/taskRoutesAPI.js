@@ -1,20 +1,28 @@
 const express = require("express");
-const {isAuthUser,isTeacher} = require("../middlewares/authmiddleware");
-const { createAssignment, myAssignments, updateAssignmentStatus, updateAssignmentGrade, classWiseAssignment, assignmentStats } = require("../controllers/Task.controller");
+const { isAuthUser, isTeacher } = require("../middlewares/authmiddleware");
+const {
+  createAssignment,
+  studentAssignments,
+  updateAssignmentStatus,
+  updateAssignmentGrade,
+  teacherAssignments,
+  classWiseAssignment,
+  assignmentStats,
+} = require("../controllers/Task.controller");
 const router = express.Router();
 
+router.post("/create", isAuthUser, isTeacher, createAssignment);
 
+router.get("/student-task", isAuthUser, studentAssignments);
 
-router.post("/create",isAuthUser,isTeacher,createAssignment)
+router.get("/teacher-task", isAuthUser,isTeacher, teacherAssignments);
 
-router.get("/my-task",isAuthUser,myAssignments)
+router.patch("/update-status/:id", isAuthUser, updateAssignmentStatus);
 
-router.patch("/update-status/:id",isAuthUser,updateAssignmentStatus)
+router.patch("/grade/:id", isAuthUser, isTeacher, updateAssignmentGrade);
 
-router.patch("/grade/:id",isAuthUser,isTeacher,updateAssignmentGrade)
+router.get("/class/:classId", isAuthUser, classWiseAssignment);
 
-router.get("/class/:classId",isAuthUser,classWiseAssignment)
+router.get("/stats/:classId", isAuthUser, isTeacher, assignmentStats);
 
-router.get("/stats/:classId",isAuthUser,isTeacher,assignmentStats)
-
-module.exports=router
+module.exports = router;
