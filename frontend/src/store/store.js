@@ -5,6 +5,7 @@ import {authAPI} from "../services/authAPI";
 import taskReducer from "../features/taskSlice";
 import { taskAPI } from "../services/taskAPI";
 import { classAPI } from "../services/classAPI";
+import { userAPI } from "../services/userAPI";
 export const store=configureStore({
     reducer:{
         auth:authReducer,
@@ -13,9 +14,10 @@ export const store=configureStore({
         [taskAPI.reducerPath]:taskAPI.reducer,
         [classAPI.reducerPath]:classAPI.reducer,
         [authAPI.reducerPath]:authAPI.reducer,
+        [userAPI.reducerPath]:userAPI.reducer,
         
 },
 middleware:(getDefaultMiddleware)=>
-    getDefaultMiddleware().concat(authAPI.middleware,taskAPI.middleware,classAPI.middleware),
+    getDefaultMiddleware().concat(authAPI.middleware,taskAPI.middleware,userAPI.middleware,classAPI.middleware),
 
 })

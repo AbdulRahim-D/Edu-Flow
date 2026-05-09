@@ -2,7 +2,7 @@ const User = require("../models/User.model")
 
 const updateProfilePic=async (req, res) => {
     try {
-        if (!req.file) return res.status(400).json({ message: "Upload the File" })
+        if (!req.file) return res.status(400).json({ message: "Upload the File" })    
         const imagePath = `/uploads/profilePic/${req.file.filename}`;
         const fileUpload = await User.findOneAndUpdate(
             { _id: req.user.id },

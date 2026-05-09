@@ -8,7 +8,7 @@ function DashboardLayout() {
       
       <Sidebar />
 
-      <main className="flex-1 overflow-y-auto h-screen p-4 md:p-8">
+      <main className="flex-1 overflow-y-auto h-screen ">
         <div className="max-w-7xl mx-auto">
            <Outlet />
         </div>

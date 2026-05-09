@@ -1,9 +1,15 @@
 import React from 'react';
 import { User, Layers, Hash, ArrowRight } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 function ClassCard({ classDetails }) {
+  console.log(classDetails);
+  const navigate=useNavigate();
+  function navigateClassDetails(){
+    // navigate(`/class_detail_view/${classDetails._id}`)
+  }
   return (
-    <div className="relative group w-full max-w-[320px]">
+    <div onClick={()=>{navigateClassDetails()}} className="relative group w-full max-w-[320px]">
       {/* Background Decorative Element (Gradient Blur) */}
       <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl blur opacity-20 group-hover:opacity-50 transition duration-300"></div>
       
@@ -25,14 +31,12 @@ function ClassCard({ classDetails }) {
           </div>
         </div>
 
-        {/* Divider Line with Cut-outs (Ticket Style) */}
         <div className="relative flex items-center my-4">
           <div className="absolute -left-2 w-4 h-4 bg-slate-50 rounded-full border border-slate-100 shadow-inner"></div>
           <div className="w-full border-t border-dashed border-slate-200 mx-4"></div>
           <div className="absolute -right-2 w-4 h-4 bg-slate-50 rounded-full border border-slate-100 shadow-inner"></div>
         </div>
 
-        {/* Bottom Section: Details */}
         <div className="px-5 pb-5 space-y-3">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">

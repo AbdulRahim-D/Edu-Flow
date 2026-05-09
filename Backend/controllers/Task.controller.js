@@ -71,40 +71,41 @@ const studentAssignments = async (req, res) => {
 
 const updateAssignmentStatus = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id))
-      return res.status(400).json({ message: "invalid class Format" });
-
-    if (req.user.role !== "Student") {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Access denied. Only students can update their tasks-status.",
-        });
-    }
+    const { id } = req.params;
     const { status, submissionLink } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return res.status(400).json({ message: "Invalid Assignment ID Format" });
+
+    if (status === "Submitted" && !submissionLink) {
+      return res.status(400).json({ message: "Submission link is required to submit the assignment." });
+    }
+
+    const updateData = { status };
+    if (submissionLink) updateData.submissionLink = submissionLink;
+
     const updatedAssignment = await Assignment.findOneAndUpdate(
-      { _id: req.params.id, assignedTo: req.user.id },
-      { $set: { status, submissionLink } },
-      { new: true, runValidators: true },
+      { _id: id, assignedTo: req.user.id },
+      { $set: updateData },
+      { new: true, runValidators: true }
     );
 
     if (!updatedAssignment)
-      return res.status(404).json({ message: "Assignment not found" });
-    else {
+      return res.status(404).json({ message: "Assignment not found or unauthorized" });
+
+    if (status === "Submitted") {
       req.io.to(updatedAssignment.classId.toString()).emit("task_submitted", {
         studentName: req.user.name,
         assignmentTitle: updatedAssignment.title,
       });
     }
+
     return res.status(200).json({
-      message: "assignment updated successfully",
+      message: `Assignment moved to ${status}`,
       data: updatedAssignment,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "internal server error", error: error.message });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -218,24 +219,34 @@ const teacherAssignments = async (req, res) => {
       },
       {
         $group: {
-          _id: "$title",
+          _id: "$title", 
           description: { $first: "$description" },
           subject: { $first: "$subject" },
           classId: { $first: "$classId" }, 
           deadline: { $first: "$deadline" },
-          createdAt: { $first: "$createdAt" }
+          createdAt: { $first: "$createdAt" },
+     
+          totalStudents: { $sum: 1 } 
         }
       },
       { $sort: { createdAt: -1 } }
     ]);
 
+    const populatedAssignments = await Assignment.populate(allAssignments, {
+      path: "classId",
+      select: "className students"
+    });
+
     res.status(200).json({
       message: "All unique assignments across all classes fetched",
-      data: allAssignments,
-      totalCount: allAssignments.length
+      data: populatedAssignments,
+      totalCount: populatedAssignments.length
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res.status(500).json({ 
+      message: "Internal server error", 
+      error: error.message 
+    });
   }
 };
 

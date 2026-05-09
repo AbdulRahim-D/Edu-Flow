@@ -44,6 +44,7 @@ export const classAPI = createApi({
 export const {
   useCreateClassMutation,
   useGetClassQuery,
+  useGetClassByIdQuery,
   useJoinClassMutation,
   useLazyGetClassQuery,
 } = classAPI;

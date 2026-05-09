@@ -31,6 +31,9 @@ function ClassPage() {
 
           {/* Role Based Buttons */}
           <div className="flex items-center gap-3">
+            {user?.role==="Student"&&(
+              <input type="text" placeholder="Enter 6_Digit Unique Code" />
+            )}
             {user?.role === "Student" && (
               <button className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-md">
                 <PlusCircle size={16} />
@@ -38,6 +41,12 @@ function ClassPage() {
               </button>
             )}
 
+                  {user?.role==="Teacher"&&(
+                      <div>
+              <input type="text" placeholder="ClassName" name="className"/>
+              <input type="text" placeholder="SubjectName" name="subjectName" />
+              </div>
+            )}
             {user?.role === "Teacher" && (
               <button className="flex items-center justify-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-md">
                 <PlusCircle size={16} />

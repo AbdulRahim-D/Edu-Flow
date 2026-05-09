@@ -8,6 +8,9 @@ import TeacherDashboard from './pages/TeacherDashboard'
 import StudentDashboard from './pages/StudentDashboard'
 import LandPage from './pages/LandPage'
 import ClassPage from './pages/ClassPage'
+import AssignemtPage from './pages/AssignemtPage'
+import ProfilePage from './pages/ProfilePage'
+import UpdateProfile from './components/UpdateProfile'
 
 function App() {
   const router=createBrowserRouter([
@@ -37,8 +40,21 @@ function App() {
     {
     path:"/classes",
     element:<ClassPage/>
-    }
+  
+    },{
+    path:"/assignment",
+    element:<AssignemtPage/>
+    },
+    {
+    path:"/profile",
+    element:<ProfilePage/>,
 
+    },
+     {
+      path:"/profile/updateprofile",
+      element:<UpdateProfile/>
+      },
+  
     ]
     }
   ])

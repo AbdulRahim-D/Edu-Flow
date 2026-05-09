@@ -17,15 +17,15 @@ export const taskAPI = createApi({
       invalidatesTags: ["Assignments"],
     }),
     updateAssignmentStatus: builder.mutation({
-      query: (assignmentSolution, id) => ({
+      query: ({ id,status,submissionLink}) => ({
         url: `/update-status/${id}`,
         method: "PATCH",
-        body: assignmentSolution,
+        body: {status,submissionLink},
       }),
       invalidatesTags: ["Assignments"],
     }),
     updateAssignmentGrade: builder.mutation({
-      query: (assignmentGrade, id) => ({
+      query: ({assignmentGrade, id}) => ({
         url: `/grade/${id}`,
         method: "PATCH",
         body: assignmentGrade,
@@ -69,6 +69,8 @@ export const {
   useGetClassWiseAssignmentsQuery,
   useGetStudentAssignmentQuery,
   useGetTeacherAssignmentQuery,
+  useLazyGetTeacherAssignmentQuery,
+  useLazyGetStudentAssignmentQuery,
   useUpdateAssignmentGradeMutation,
   useUpdateAssignmentStatusMutation,
 } = taskAPI;
