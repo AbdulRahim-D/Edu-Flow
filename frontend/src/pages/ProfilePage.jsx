@@ -17,16 +17,16 @@ function ProfilePage() {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) return toast.error("File size 2MB kante thakkuva undali mama!");
+    if (file.size > 2 * 1024 * 1024) return toast.error("File size should be under 2MB !");
 
     const formData = new FormData();
     formData.append("profilePic", file);
 
     try {
       await updateProfilePic(formData).unwrap();
-      toast.success("Profile Picture update ayyindi! 🔥");
+      toast.success("Profile Picture is updated! 🔥");
     } catch (err) {
-      toast.error(err?.data?.message || "Upload fail ayindi!");
+      toast.error(err?.data?.message || "file Uplaod is Failed!");
     }
   };
 

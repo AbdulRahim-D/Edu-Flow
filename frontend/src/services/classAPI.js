@@ -17,10 +17,10 @@ export const classAPI = createApi({
       invalidatesTags: ["Class"],
     }),
     joinClass: builder.mutation({
-      query: (data) => ({
+      query: (classCode) => ({
         url: "/join",
         method: "PATCH",
-        body: data,
+        body: classCode,
       }),
       invalidatesTags: ["Class"],
     }),

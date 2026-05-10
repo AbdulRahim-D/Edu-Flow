@@ -11,6 +11,7 @@ import ClassPage from './pages/ClassPage'
 import AssignemtPage from './pages/AssignemtPage'
 import ProfilePage from './pages/ProfilePage'
 import UpdateProfile from './components/UpdateProfile'
+import ClassAssignment from './pages/ClassAssignment'
 
 function App() {
   const router=createBrowserRouter([
@@ -53,6 +54,10 @@ function App() {
      {
       path:"/profile/updateprofile",
       element:<UpdateProfile/>
+      },
+       {
+      path:"/class_assignment/:id",
+      element:<ClassAssignment/>
       },
   
     ]

@@ -1,64 +1,78 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { BookOpen, Calendar, Users, ArrowRight, Layers } from 'lucide-react';
+import { 
+  BookOpen, 
+  Calendar, 
+  CheckCircle2, 
+  Clock, 
+  Users, 
+  ExternalLink,
+  ChevronRight
+} from 'lucide-react';
 
-function AssignmentCard({ assignment }) {
-  const navigate = useNavigate();
-
-  const handleCardClick = () => {
-
-    navigate(`/assignment/kanban/${ encodeURIComponent( assignment._id)}`);
+function AssignmentCard({ assignment, isTeacherView = false }) {
+  const statusStyles = {
+    "Graded": "bg-green-100 text-green-700 border-green-200",
+    "Submitted": "bg-blue-100 text-blue-700 border-blue-200",
+    "In-Progress": "bg-orange-100 text-orange-700 border-orange-200",
+    "To-Do": "bg-slate-100 text-slate-700 border-slate-200"
   };
 
+  const currentStatus = assignment?.status || (isTeacherView ? "Active" : "To-Do");
+
   return (
-    <div 
-      onClick={handleCardClick}
-      className="group bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-indigo-400 transition-all duration-300 cursor-pointer relative overflow-hidden"
-    >
-      <Layers className="absolute -right-4 -bottom-4 text-slate-50 w-24 h-24 group-hover:text-indigo-50 transition-colors duration-300" />
-
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-4">
-          <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
-            <BookOpen size={24} />
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-500">
-              {assignment?.subject || "General"}
-            </span>
-            <div className="flex items-center gap-1 text-slate-400">
-              <Users size={12} />
-              <span className="text-[10px] font-semibold">{assignment?.totalStudents} Students</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <h3 className="text-xl font-bold text-slate-800 mb-1 group-hover:text-indigo-600 transition-colors line-clamp-1">
-            {assignment?._id} {/* _id ikkada Grouped Title */}
-          </h3>
-          <p className="text-xs font-medium text-slate-400 uppercase">
-            Class: <span className="text-slate-600">{assignment?.classId?.className || "N/A"}</span>
-          </p>
-          <p className="text-sm text-slate-500 mt-3 line-clamp-2 leading-relaxed">
-            {assignment?.description || "Click to monitor student progress on the board."}
-          </p>
-        </div>
-
-        <div className="flex items-center justify-between pt-5 border-t border-slate-100">
-          <div className="flex items-center gap-2 text-slate-500">
-            <Calendar size={14} className="text-slate-400" />
-            <span className="text-xs font-medium">
-              Due: {assignment?.deadline ? new Date(assignment.deadline).toLocaleDateString() : "No Date"}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1 text-indigo-600 font-bold text-sm group-hover:translate-x-1 transition-transform">
-            <span>View Board</span>
-            <ArrowRight size={16} />
-          </div>
-        </div>
+    <div className="group relative bg-white border border-slate-200 rounded-[2rem] p-6 hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-300 hover:-translate-y-1">
+      
+      <div className="flex justify-between items-start mb-4">
+        <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full uppercase tracking-wider">
+          {assignment?.subject}
+        </span>
+        <span className={`px-3 py-1 rounded-lg text-[10px] font-bold border ${statusStyles[currentStatus] || "bg-slate-50"}`}>
+          {currentStatus}
+        </span>
       </div>
+
+      <div className="mb-6">
+        <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-indigo-600 transition-colors">
+          {assignment?.title || assignment?._id}
+        </h3>
+        <p className="text-slate-500 text-sm line-clamp-2">
+          {assignment?.description}
+        </p>
+      </div>
+
+      <div className="space-y-3 mb-6">
+        <div className="flex items-center text-slate-500 text-sm gap-2">
+          <Calendar className="w-4 h-4 text-indigo-400" />
+          <span>Due: {new Date(assignment?.deadline).toLocaleDateString()}</span>
+        </div>
+
+        {isTeacherView ? (
+          <div className="flex items-center text-slate-500 text-sm gap-2">
+            <Users className="w-4 h-4 text-indigo-400" />
+            <span>{assignment?.totalStudents} Students Assigned</span>
+          </div>
+        ) : (
+          <div className="flex items-center text-slate-500 text-sm gap-2">
+            <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-600 border border-indigo-200">
+              {assignment?.assignedBy?.name?.charAt(0)}
+            </div>
+            <span>{assignment?.assignedBy?.name}</span>
+          </div>
+        )}
+      </div>
+
+      {!isTeacherView && assignment?.status === "Graded" && (
+        <div className="mt-4 p-4 bg-green-50/50 rounded-2xl border border-green-100 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold text-green-600 uppercase">Grade Received</p>
+            <p className="text-lg font-black text-green-700">{assignment?.grade}</p>
+          </div>
+          <CheckCircle2 className="w-8 h-8 text-green-500 opacity-50" />
+        </div>
+      )}
+
+    
+
     </div>
   );
 }

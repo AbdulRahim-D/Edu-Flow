@@ -220,9 +220,10 @@ const teacherAssignments = async (req, res) => {
       {
         $group: {
           _id: "$title", 
+          assignmentId:{$first:"$_id"}, 
           description: { $first: "$description" },
           subject: { $first: "$subject" },
-          classId: { $first: "$classId" }, 
+          classId: { $first: "$classId" },
           deadline: { $first: "$deadline" },
           createdAt: { $first: "$createdAt" },
      
@@ -250,6 +251,38 @@ const teacherAssignments = async (req, res) => {
   }
 };
 
+const allAssignmentsByField = async (req, res) => {
+  try {
+    const { title, description } = req.body;
+
+
+    const teacherId = req.user.id;
+
+
+    const allAssignments = await Assignment.find({
+      title: title,
+      description: description,
+      assignedBy: teacherId
+    }).populate("assignedTo", "name email");
+
+    if (!allAssignments || allAssignments.length === 0) {
+      return res.status(404).json({ message: "No assignments found matching these fields." });
+    }
+
+    res.status(200).json({
+      message: "All student assignments fetched successfully!",
+      count: allAssignments.length,
+      data: allAssignments
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createAssignment,
   studentAssignments,
@@ -257,5 +290,6 @@ module.exports = {
   updateAssignmentStatus,
   updateAssignmentGrade,
   teacherAssignments,
+  allAssignmentsByField,
   classWiseAssignment,
 };

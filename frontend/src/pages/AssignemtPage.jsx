@@ -1,40 +1,59 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { 
-  useGetStudentAssignmentQuery, 
   useGetTeacherAssignmentQuery,
-  useGetClassWiseAssignmentsQuery // Kotha class-wise query
+  useGetClassWiseAssignmentsQuery 
 } from "../services/taskAPI";
 import { useGetClassQuery } from "../services/classAPI"; 
 import Loading from "../components/Loading";
-import AssignmentCard from "../components/AssignmentCard"; 
 import KanbanBoard from "../components/KanbanBoard";
+import TeacherKanbanBoard from "../components/TeacherKanbanBoard";
 
 function AssignmentPage() {
   const { user } = useSelector((state) => state.auth);
-  const [selectedClass, setSelectedClass] = useState(""); // Student select chesina class ID
+  const [selectedClass, setSelectedClass] = useState(""); 
+  
+  const [selectedAssignmentDetails, setSelectedAssignmentDetails] = useState(null); 
 
-  // 1. Teacher assignments fetch (existing logic)
   const teacherRes = useGetTeacherAssignmentQuery(undefined, {
     skip: user.role !== "Teacher",
   });
 
-  // 2. Student assignments fetch (Class-wise optimization)
-  // Student class select chesthene assignments fetch avthayi [cite: 13, 18]
+  const { data: teacherClassList, isLoading: teacherClassesLoading } = useGetClassQuery(undefined, {
+    skip: user.role !== "Teacher",
+  });
+
+  const selectedTeacherAssignments = teacherRes?.data?.data?.filter(
+    assignment => assignment.classId._id === selectedClass
+  ) || [];
+
   const studentRes = useGetClassWiseAssignmentsQuery(selectedClass, {
     skip: user.role !== "Student" || !selectedClass,
   });
+  
 
-  // 3. Student classes list (Dropdown kosam)
-  const { data: classList, isLoading: classesLoading } = useGetClassQuery(undefined, {
+  const { data: studentClassList, isLoading: studentClassesLoading } = useGetClassQuery(undefined, {
     skip: user.role !== "Student",
   });
 
-  const isLoading = user.role === "Teacher" ? teacherRes.isLoading : (studentRes.isLoading || classesLoading);
+  // --- Handlers ---
+  const handleAssignmentChange = (e) => {
+    const assignmentId = e.target.value;
+    if (!assignmentId) {
+      setSelectedAssignmentDetails(null);
+      return;
+    }
+    const assignmentObj = selectedTeacherAssignments.find(a => a._id === assignmentId);
+    setSelectedAssignmentDetails(assignmentObj);
+  };
+
+  const isLoading = user.role === "Teacher" 
+    ? (teacherRes.isLoading || teacherClassesLoading) 
+    : (studentRes.isLoading || studentClassesLoading);
 
   if (isLoading) return <Loading />;
 
-  // --- TEACHER VIEW (Existing Grid Layout) ---
+  // --- TEACHER VIEW ---
   if (user.role === "Teacher") {
     return (
       <div className="p-6 bg-slate-50 min-h-screen">
@@ -43,52 +62,71 @@ function AssignmentPage() {
           <p className="text-slate-500 text-sm mt-1">Monitor progress across all your assigned classes.</p>
         </div>
 
-        {teacherRes.data?.data?.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {teacherRes.data.data.map((item, index) => (
-              <AssignmentCard key={item._id || index} assignment={item} />
+        <div className="flex gap-4 mb-8">
+          {/* Class Dropdown */}
+          <select 
+            className="p-2 border rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            value={selectedClass}
+            onChange={(e) => {
+              setSelectedClass(e.target.value);
+              setSelectedAssignmentDetails(null); // Class marithe details reset
+            }}
+          >
+            <option value="">Select a Class</option>
+            {teacherClassList?.data?.map((cls) => (
+              <option key={cls._id} value={cls._id}>{cls.className}</option>
             ))}
-          </div>
+          </select>
+
+          {/* Assignment Dropdown */}
+          <select 
+            className="p-2 border rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            value={selectedAssignmentDetails?._id || ""}
+            onChange={handleAssignmentChange}
+            disabled={!selectedClass}
+          >
+            <option value="">Select an Assignment</option>
+            {selectedTeacherAssignments.map((assignment) => (
+              <option key={assignment._id} value={assignment._id}>
+                {assignment.title || assignment._id}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Display Teacher Kanban Board - Ikkada poorthi object velthundi */}
+        {selectedAssignmentDetails ? (
+          <TeacherKanbanBoard assignmentDetails={selectedAssignmentDetails} />
         ) : (
-          <div className="flex flex-col items-center justify-center h-[60vh] bg-white rounded-2xl border-2 border-dashed border-slate-200">
-            <p className="text-slate-400 font-medium text-lg">No assignments found!</p>
-            <button className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold shadow-md">
-               Create First Assignment
-            </button>
+          <div className="text-center mt-20 text-slate-400">
+             Please select a class and an assignment to monitor progress.
           </div>
         )}
       </div>
     );
   }
 
-  // --- STUDENT VIEW (Kanban Board with Filter) ---
+  // --- STUDENT VIEW ---
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
+      {/* ... Student view remains same ... */}
       <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-800">My Kanban Board</h1>
-          <p className="text-slate-500 text-sm mt-1">Manage tasks for your selected class.</p>
-        </div>
-
-        {/* Class Selection Dropdown [cite: 127] */}
+        <h1 className="text-2xl font-extrabold text-slate-800">My Kanban Board</h1>
         <select 
-          className="p-2 border rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-indigo-500"
+          className="p-2 border rounded-lg bg-white shadow-sm outline-none"
           value={selectedClass}
           onChange={(e) => setSelectedClass(e.target.value)}
         >
           <option value="">Select a Class</option>
-          {classList?.data?.map((cls) => (
+          {studentClassList?.data?.map((cls) => (
             <option key={cls._id} value={cls._id}>{cls.className}</option>
           ))}
         </select>
       </div>
-
       {selectedClass ? (
         <KanbanBoard initialData={studentRes.data?.data || []} classId={selectedClass} />
       ) : (
-        <div className="text-center mt-20 text-slate-400">
-           Please select a class to view your assignments.
-        </div>
+        <div className="text-center mt-20 text-slate-400">Please select a class.</div>
       )}
     </div>
   );

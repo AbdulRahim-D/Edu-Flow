@@ -8,6 +8,7 @@ const {
   teacherAssignments,
   classWiseAssignment,
   assignmentStats,
+  allAssignmentsByField,
 } = require("../controllers/Task.controller");
 const router = express.Router();
 
@@ -22,6 +23,8 @@ router.patch("/update-status/:id", isAuthUser, updateAssignmentStatus);
 router.patch("/grade/:id", isAuthUser, isTeacher, updateAssignmentGrade);
 
 router.get("/class/:classId", isAuthUser, classWiseAssignment);
+
+router.post("/allassignments", isAuthUser,isTeacher, allAssignmentsByField);
 
 router.get("/stats/:classId", isAuthUser, isTeacher, assignmentStats);
 

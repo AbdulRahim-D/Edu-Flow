@@ -6,17 +6,14 @@ function ClassCard({ classDetails }) {
   console.log(classDetails);
   const navigate=useNavigate();
   function navigateClassDetails(){
-    // navigate(`/class_detail_view/${classDetails._id}`)
+    navigate(`/class_assignment/${classDetails._id}`)
   }
   return (
     <div onClick={()=>{navigateClassDetails()}} className="relative group w-full max-w-[320px]">
-      {/* Background Decorative Element (Gradient Blur) */}
       <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl blur opacity-20 group-hover:opacity-50 transition duration-300"></div>
       
-      {/* Main Card */}
       <div className="relative bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
         
-        {/* Top Section: Class Name & Icon */}
         <div className="p-5 pb-0 flex justify-between items-start">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-full">
@@ -56,7 +53,6 @@ function ClassCard({ classDetails }) {
             </span>
           </div>
 
-          {/* Action Footer */}
           <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
             <span className="text-[11px] text-slate-400 font-medium italic">
               {classDetails?.students?.length} Students Enrolled
