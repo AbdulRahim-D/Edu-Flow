@@ -7,6 +7,7 @@ import { useGetTeacherAssignmentQuery } from "../services/taskAPI";
 import { setTasks, setTotalTasks } from "../features/taskSlice";
 import { School, GraduationCap, NotebookPen, Users, LayoutDashboard, PlusCircle } from "lucide-react";
 import { motion } from "framer-motion"; 
+import TeacherGraph from "../components/TeacherGraph";
 
 function TeacherDashboard() {
   const { data: classData, isLoading: classLoading } = useGetClassQuery();
@@ -108,26 +109,7 @@ function TeacherDashboard() {
         </div>
 
         {/* Analytics Section / Coming Soon (Ticket-like feel) */}
-        <motion.div variants={itemVariants} className="relative group overflow-hidden">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl blur opacity-10 group-hover:opacity-20 transition duration-500"></div>
-          <div className="relative bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-               <GraduationCap className="text-blue-500" /> Subject Analytics
-            </h2>
-            <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-xl bg-slate-50/50">
-               <div className="p-4 bg-white rounded-full shadow-inner mb-4">
-                 <LayoutDashboard className="text-slate-200" size={40} />
-               </div>
-               <motion.p 
-                 animate={{ opacity: [0.4, 1, 0.4] }} 
-                 transition={{ repeat: Infinity, duration: 2 }}
-                 className="text-slate-400 font-medium italic text-sm"
-               >
-                 Generating your performance charts...
-               </motion.p>
-            </div>
-          </div>
-        </motion.div>
+        <TeacherGraph/>
 
       </motion.div>
     </div>

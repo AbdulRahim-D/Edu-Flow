@@ -9,6 +9,7 @@ const {
   classWiseAssignment,
   assignmentStats,
   allAssignmentsByField,
+  deleteAssignment,
 } = require("../controllers/Task.controller");
 const router = express.Router();
 
@@ -26,6 +27,8 @@ router.get("/class/:classId", isAuthUser, classWiseAssignment);
 
 router.post("/allassignments", isAuthUser,isTeacher, allAssignmentsByField);
 
-router.get("/stats/:classId", isAuthUser, isTeacher, assignmentStats);
+router.get("/stats/:assignmentId", isAuthUser, isTeacher, assignmentStats);
+
+router.delete("/delete",isAuthUser,isTeacher,deleteAssignment)
 
 module.exports = router;

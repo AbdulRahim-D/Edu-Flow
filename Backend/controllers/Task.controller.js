@@ -48,11 +48,9 @@ const createAssignment = async (req, res) => {
 const studentAssignments = async (req, res) => {
   try {
     if (req.user.role !== "Student") {
-      return res
-        .status(403)
-        .json({
-          message: "Access denied. Only students can view their tasks.",
-        });
+      return res.status(403).json({
+        message: "Access denied. Only students can view their tasks.",
+      });
     }
     const assignedAssignments = await Assignment.find({
       assignedTo: req.user.id,
@@ -78,7 +76,11 @@ const updateAssignmentStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid Assignment ID Format" });
 
     if (status === "Submitted" && !submissionLink) {
-      return res.status(400).json({ message: "Submission link is required to submit the assignment." });
+      return res
+        .status(400)
+        .json({
+          message: "Submission link is required to submit the assignment.",
+        });
     }
 
     const updateData = { status };
@@ -87,11 +89,13 @@ const updateAssignmentStatus = async (req, res) => {
     const updatedAssignment = await Assignment.findOneAndUpdate(
       { _id: id, assignedTo: req.user.id },
       { $set: updateData },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedAssignment)
-      return res.status(404).json({ message: "Assignment not found or unauthorized" });
+      return res
+        .status(404)
+        .json({ message: "Assignment not found or unauthorized" });
 
     if (status === "Submitted") {
       req.io.to(updatedAssignment.classId.toString()).emit("task_submitted", {
@@ -105,7 +109,9 @@ const updateAssignmentStatus = async (req, res) => {
       data: updatedAssignment,
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -121,11 +127,9 @@ const updateAssignmentGrade = async (req, res) => {
         .json({ message: "Assignment not found! Please check the ID." });
     }
     if (assignmentData.assignedBy.toString() !== req.user.id)
-      return res
-        .status(400)
-        .json({
-          message: "access Denied! you are not the Creator of this Assignment",
-        });
+      return res.status(400).json({
+        message: "access Denied! you are not the Creator of this Assignment",
+      });
 
     const { status, grade, feedback, studentId } = req.body;
     const updatedAssignmentGrade = await Assignment.findOneAndUpdate(
@@ -168,13 +172,11 @@ const classWiseAssignment = async (req, res) => {
       .sort({ createdAt: -1 });
     if (!assignments || assignments.length === 0)
       return res.status(404).json({ message: "Assignment not found" });
-    res
-      .status(200)
-      .json({
-        message: "assignments are fetched!",
-        data: assignments,
-        count: assignments.length,
-      });
+    res.status(200).json({
+      message: "assignments are fetched!",
+      data: assignments,
+      count: assignments.length,
+    });
   } catch (error) {
     res
       .status(500)
@@ -184,69 +186,91 @@ const classWiseAssignment = async (req, res) => {
 
 const assignmentStats = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.classId))
-      return res.status(400).json({ message: "invalid class Format" });
-    const { classId } = req.params;
-    const classData = await Class.findOne({ _id: classId });
-    if (classData.teacher.toString() !== req.user.id.toString())
-      return res.status(403).json({ message: "Access Denined!" });
-    const assignmentStatsData = await Assignment.aggregate([
-      { $match: { classId: new mongoose.Types.ObjectId(classId) } },
-      { $group: { _id: "$status", count: { $sum: 1 } } },
+    const { assignmentId } = req.params; // Ikkada Assignment ID ni teesukuntunnam
+
+    if (!mongoose.Types.ObjectId.isValid(assignmentId)) {
+      return res.status(400).json({ message: "Invalid Assignment Format" });
+    }
+
+    const assignmentExists = await Assignment.findOne({ _id: assignmentId });
+
+    if (!assignmentExists) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+
+    if (assignmentExists.assignedBy.toString() !== req.user.id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Access Denied! Not your assignment." });
+    }
+
+    const stats = await Assignment.aggregate([
+      {
+        $match: {
+          title: assignmentExists.title,
+          assignedBy: new mongoose.Types.ObjectId(req.user.id),
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
     ]);
-    if (assignmentStatsData.length === 0)
-      return res.status(200).json({ message: "No Assignments Found Yet!" });
-    res
-      .status(200)
-      .json({
-        message: "Data stats are Fetched",
-        data: assignmentStatsData,
-        count: assignmentStatsData.length,
-      });
+
+    const totalStudents = stats.reduce((acc, curr) => acc + curr.count, 0);
+
+    res.status(200).json({
+      message: "Assignment stats fetched successfully",
+      total: totalStudents,
+      data: stats,
+    });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "internal server Error", error: error.message });
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
+
 const teacherAssignments = async (req, res) => {
   try {
     const teacherId = req.user.id;
 
     const allAssignments = await Assignment.aggregate([
-      { 
-        $match: { assignedBy: new mongoose.Types.ObjectId(teacherId) } 
+      {
+        $match: { assignedBy: new mongoose.Types.ObjectId(teacherId) },
       },
       {
         $group: {
-          _id: "$title", 
-          assignmentId:{$first:"$_id"}, 
+          _id: "$title",
+          assignmentId: { $first: "$_id" },
           description: { $first: "$description" },
           subject: { $first: "$subject" },
           classId: { $first: "$classId" },
           deadline: { $first: "$deadline" },
           createdAt: { $first: "$createdAt" },
-     
-          totalStudents: { $sum: 1 } 
-        }
+
+          totalStudents: { $sum: 1 },
+        },
       },
-      { $sort: { createdAt: -1 } }
+      { $sort: { createdAt: -1 } },
     ]);
 
     const populatedAssignments = await Assignment.populate(allAssignments, {
       path: "classId",
-      select: "className students"
+      select: "className students",
     });
 
     res.status(200).json({
       message: "All unique assignments across all classes fetched",
       data: populatedAssignments,
-      totalCount: populatedAssignments.length
+      totalCount: populatedAssignments.length,
     });
   } catch (error) {
-    res.status(500).json({ 
-      message: "Internal server error", 
-      error: error.message 
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
     });
   }
 };
@@ -255,33 +279,56 @@ const allAssignmentsByField = async (req, res) => {
   try {
     const { title, description } = req.body;
 
-
     const teacherId = req.user.id;
-
 
     const allAssignments = await Assignment.find({
       title: title,
       description: description,
-      assignedBy: teacherId
+      assignedBy: teacherId,
     }).populate("assignedTo", "name email");
 
     if (!allAssignments || allAssignments.length === 0) {
-      return res.status(404).json({ message: "No assignments found matching these fields." });
+      return res
+        .status(404)
+        .json({ message: "No assignments found matching these fields." });
     }
 
     res.status(200).json({
       message: "All student assignments fetched successfully!",
       count: allAssignments.length,
-      data: allAssignments
+      data: allAssignments,
     });
-
   } catch (error) {
     res.status(500).json({
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     });
   }
 };
+
+const deleteAssignment=async(req,res)=>{
+  try{   
+    const {title,description}=req.body
+
+      const deletedAssignment=await Assignment.deleteMany({
+    title:title,
+    description:description,
+    assignedBy:req.user.id,
+  })
+if(deletedAssignment.deletedCount===0)
+  res.status(404).json({message:"assignment not found!"})
+
+res.status(200).json({message:"assignment deleted succcessfully!",data:deletedAssignment})
+  }
+
+
+  catch(error){
+    res.status(500).json({
+      message:"internal Server error",
+      error:error.message
+    })
+  }
+}
 
 module.exports = {
   createAssignment,
@@ -290,6 +337,7 @@ module.exports = {
   updateAssignmentStatus,
   updateAssignmentGrade,
   teacherAssignments,
+  deleteAssignment,
   allAssignmentsByField,
   classWiseAssignment,
 };

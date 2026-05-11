@@ -18,7 +18,7 @@ function Sidebar() {
   const navigate = useNavigate();
 
   return (
-    <div className="w-64 h-screen border-2 text-white flex flex-col p-5">
+    <div className="w-64 h-screen  text-white bg-white flex flex-col p-5">
       <h1 className="text-2xl font-bold mb-5 text-blue-500">Edu-Flow</h1>
       <p className="text-black mb-4 font-semibold text-sm ">
         Welcome back! {user.name}

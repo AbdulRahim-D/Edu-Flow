@@ -17,18 +17,18 @@ export const taskAPI = createApi({
       invalidatesTags: ["Assignments"],
     }),
     updateAssignmentStatus: builder.mutation({
-      query: ({ id,status,submissionLink}) => ({
+      query: ({ id, status, submissionLink }) => ({
         url: `/update-status/${id}`,
         method: "PATCH",
-        body: {status,submissionLink},
+        body: { status, submissionLink },
       }),
       invalidatesTags: ["Assignments"],
     }),
     updateAssignmentGrade: builder.mutation({
-      query: ({grade,feedback,status,studentId, id}) => ({
+      query: ({ grade, feedback, status, studentId, id }) => ({
         url: `/grade/${id}`,
         method: "PATCH",
-        body: {grade,feedback,status,studentId},
+        body: { grade, feedback, status, studentId },
       }),
       invalidatesTags: ["Assignments"],
     }),
@@ -60,14 +60,22 @@ export const taskAPI = createApi({
       }),
       providesTags: ["Assignments"],
     }),
-    getAssignmentsByField:builder.query({
-      query:(data)=>({
-        url:`/allassignments`,
-        method:"POST",
-        body:data,
+    getAssignmentsByField: builder.query({
+      query: (data) => ({
+        url: `/allassignments`,
+        method: "POST",
+        body: data,
       }),
-      providesTags:["Assignments"]
-    })
+      providesTags: ["Assignments"],
+    }),
+    deleteAssignment: builder.mutation({
+      query: (assignmentData) => ({
+        url: `/delete`,
+        method: "DELETE",
+        body:assignmentData
+      }),
+      invalidatesTags: ["Assignments"],
+    }),
   }),
 });
 
@@ -82,4 +90,5 @@ export const {
   useLazyGetStudentAssignmentQuery,
   useUpdateAssignmentGradeMutation,
   useUpdateAssignmentStatusMutation,
+  useDeleteAssignmentMutation
 } = taskAPI;

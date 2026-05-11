@@ -108,4 +108,5 @@ const getClassById = async (req, res) => {
   }
 };
 
+
 module.exports = { createClass, joinClass, getClassById, getAllClasses };

@@ -20,3 +20,17 @@ export const loginSchema = Yup.object({
   email: Yup.string().email("enter Valid Email").required("Email is Required"),
   password: Yup.string().required("Password is Required"),
 });
+
+
+export const assignmentSchema = Yup.object({
+  title: Yup.string()
+    .min(5, "Title must be at least 5 characters")
+    .required("Title is required"),
+  description: Yup.string()
+    .min(10, "Description must be at least 10 characters")
+    .required("Description is required"),
+  subject: Yup.string().required("Subject is required"),
+  deadline: Yup.date()
+    .min(new Date(), "Deadline cannot be in the past")
+    .required("Deadline is required"),
+});

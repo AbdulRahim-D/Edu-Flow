@@ -8,6 +8,7 @@ import { useGetClassQuery } from "../services/classAPI";
 import Loading from "../components/Loading";
 import KanbanBoard from "../components/KanbanBoard";
 import TeacherKanbanBoard from "../components/TeacherKanbanBoard";
+import { useFormik } from "formik";
 
 function AssignmentPage() {
   const { user } = useSelector((state) => state.auth);
@@ -53,7 +54,6 @@ function AssignmentPage() {
 
   if (isLoading) return <Loading />;
 
-  // --- TEACHER VIEW ---
   if (user.role === "Teacher") {
     return (
       <div className="p-6 bg-slate-50 min-h-screen">
@@ -94,7 +94,6 @@ function AssignmentPage() {
           </select>
         </div>
 
-        {/* Display Teacher Kanban Board - Ikkada poorthi object velthundi */}
         {selectedAssignmentDetails ? (
           <TeacherKanbanBoard assignmentDetails={selectedAssignmentDetails} />
         ) : (
@@ -102,6 +101,9 @@ function AssignmentPage() {
              Please select a class and an assignment to monitor progress.
           </div>
         )}
+
+<div></div>
+
       </div>
     );
   }
