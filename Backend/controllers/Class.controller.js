@@ -1,6 +1,7 @@
 const Class = require("../models/Class.model");
 const crypto = require("crypto");
-const mongoose=require("mongoose")
+const mongoose = require("mongoose");
+const Assignment = require("../models/Assignment.model");
 
 const createClass = async (req, res) => {
   try {
@@ -66,22 +67,20 @@ const getAllClasses = async (req, res) => {
   try {
     let query;
     query =
-      req.user.role === "Teacher"
-        ? { teacher: req.user.id }
-        : { students: { $in: [req.user.id] } };
+      req.user.role === "Teacher" ?
+        { teacher: req.user.id }
+      : { students: { $in: [req.user.id] } };
     const allClasses = await Class.find(query).populate(
       "teacher",
       "name email",
     );
     if (!allClasses)
       return res.status(404).json({ message: "Class not Found!" });
-    res
-      .status(200)
-      .json({
-        message: "Classes Fetched Successfully",
-        data: allClasses,
-        count: allClasses.length,
-      });
+    res.status(200).json({
+      message: "Classes Fetched Successfully",
+      data: allClasses,
+      count: allClasses.length,
+    });
   } catch (error) {
     res.status(500).json({ message: "internal Error", error: error.message });
   }
@@ -108,5 +107,39 @@ const getClassById = async (req, res) => {
   }
 };
 
+const deleteClass = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(classId))
+      return res.status(400).json({ message: "invalid id format!" });
+    const classDeleted = await Class.findOneAndDelete({
+      teacher: req.user.id,
+      _id: classId,
+    });
+    if (!classDeleted)
+      return res.status(404).json({ message: "class not Found!" });
 
-module.exports = { createClass, joinClass, getClassById, getAllClasses };
+    const classAssignmentDelete = await Assignment.deleteMany({
+      classId: classId,
+    });
+    res
+      .status(200)
+      .json({
+        message: "class and assignments are deleted",
+        data: { classDeleted, classAssignmentDelete },
+        count: { deletedAssignments: classAssignmentDelete.deletedCount },
+      });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "internal server error", error: error.message });
+  }
+};
+
+module.exports = {
+  createClass,
+  joinClass,
+  deleteClass,
+  getClassById,
+  getAllClasses,
+};

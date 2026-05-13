@@ -38,8 +38,16 @@ export const classAPI = createApi({
       }),
       providesTags:["Class"]
     }),
+    deleteClassById:builder.mutation({
+      query:(classId)=>({
+        url:`/${classId}`,
+        method:"DELETE",
+      }),
+      invalidatesTags:['Class']
+    })
   }),
 });
+
 
 export const {
   useCreateClassMutation,
@@ -47,4 +55,5 @@ export const {
   useGetClassByIdQuery,
   useJoinClassMutation,
   useLazyGetClassQuery,
+  useDeleteClassByIdMutation
 } = classAPI;

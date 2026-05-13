@@ -1,16 +1,34 @@
 import React from 'react';
-import { User, Layers, Hash, ArrowRight } from "lucide-react";
+import { User, Layers, Hash, ArrowRight, Trash2 } from "lucide-react"; 
 import { useNavigate } from 'react-router-dom';
+import { useDeleteClassByIdMutation } from "../services/classAPI"; 
+import Swal from 'sweetalert2'; 
 
-function ClassCard({ classDetails }) {
-  console.log(classDetails);
-  const navigate=useNavigate();
-  function navigateClassDetails(){
-    navigate(`/class_assignment/${classDetails._id}`)
+function ClassCard({ classDetails, isTeacherView }) {
+  const navigate = useNavigate();
+  const [deleteClass, { isLoading }] = useDeleteClassByIdMutation();
+
+  function navigateClassDetails() {
+    navigate(`/class_assignment/${classDetails._id}`);
   }
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this class?");
+    if (confirmDelete) {
+      try {
+        await deleteClass(classDetails._id).unwrap();
+        alert("Class deleted successfully!");
+      } catch (err) {
+        alert("Failed to delete class: " + err.data?.message);
+      }
+    }
+  };
+
   return (
-    <div onClick={()=>{navigateClassDetails()}} className="relative group w-full max-w-[320px]">
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl blur opacity-20 group-hover:opacity-50 transition duration-300"></div>
+    <div onClick={navigateClassDetails} className="relative group w-full max-w-[320px] cursor-pointer">
+      <div className="absolute -inset-0.5 bg-linear-to-r from-blue-500 to-indigo-600 rounded-2xl blur opacity-20 group-hover:opacity-50 transition duration-300"></div>
       
       <div className="relative bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
         
@@ -23,8 +41,23 @@ function ClassCard({ classDetails }) {
               {classDetails?.className}
             </h1>
           </div>
-          <div className="h-10 w-10 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform">
-             <Layers className="text-blue-500" size={20} />
+          
+          <div className="flex flex-col items-end gap-2">
+            <div className="h-10 w-10 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform">
+               <Layers className="text-blue-500" size={20} />
+            </div>
+            
+       
+            {isTeacherView && (
+              <button 
+                onClick={handleDelete}
+                disabled={isLoading}
+                className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors border border-red-100"
+                title="Delete Class"
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
           </div>
         </div>
 

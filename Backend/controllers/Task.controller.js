@@ -29,7 +29,7 @@ const createAssignment = async (req, res) => {
     });
     const savedAssignment = await Assignment.insertMany(studentsAssignments);
 
-    req.io.to(classId).emit("new_Assignment!", {
+    req.io.to(classId).emit("assignment_created", {
       message: `New Assignment:${title}`,
       subject: subject,
       deadline: deadline,
@@ -76,11 +76,9 @@ const updateAssignmentStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid Assignment ID Format" });
 
     if (status === "Submitted" && !submissionLink) {
-      return res
-        .status(400)
-        .json({
-          message: "Submission link is required to submit the assignment.",
-        });
+      return res.status(400).json({
+        message: "Submission link is required to submit the assignment.",
+      });
     }
 
     const updateData = { status };
@@ -99,8 +97,11 @@ const updateAssignmentStatus = async (req, res) => {
 
     if (status === "Submitted") {
       req.io.to(updatedAssignment.classId.toString()).emit("task_submitted", {
+        _id: updatedAssignment._id,
         studentName: req.user.name,
+        status: "Submitted",
         assignmentTitle: updatedAssignment.title,
+        submissionLink: updatedAssignment.submissionLink,
       });
     }
 
@@ -141,14 +142,19 @@ const updateAssignmentGrade = async (req, res) => {
       { $set: { status, grade, feedback } },
       { new: true, runValidators: true },
     );
+    console.log(updatedAssignmentGrade);
+
     if (!updatedAssignmentGrade)
       return res.status(404).json({ message: "Assignment not found" });
     else {
       req.io
         .to(updatedAssignmentGrade.classId.toString())
         .emit("grade_updated", {
-          assignmentId: updatedAssignmentGrade._id,
+          _id: updatedAssignmentGrade._id,
           grade: grade,
+          status: "Graded",
+          teacherName: req.user.name,
+          assignmentTitle: updatedAssignmentGrade.title,
         });
     }
     res.status(200).json({
@@ -306,29 +312,39 @@ const allAssignmentsByField = async (req, res) => {
   }
 };
 
-const deleteAssignment=async(req,res)=>{
-  try{   
-    const {title,description}=req.body
+const deleteAssignment = async (req, res) => {
+  try {
+    const { title, description, classId } = req.body;
 
-      const deletedAssignment=await Assignment.deleteMany({
-    title:title,
-    description:description,
-    assignedBy:req.user.id,
-  })
-if(deletedAssignment.deletedCount===0)
-  res.status(404).json({message:"assignment not found!"})
+    const deletedData = await Assignment.deleteMany({
+      title: title,
+      description: description,
+      assignedBy: req.user.id,
+      classId: classId,
+    });
 
-res.status(200).json({message:"assignment deleted succcessfully!",data:deletedAssignment})
-  }
+    if (deletedData.deletedCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "Assignment not found or unauthorized!" });
+    }
 
+    req.io.to(classId.toString()).emit("assignment_deleted", {
+      title: title,
+      message: "An assignment was removed by the teacher",
+    });
 
-  catch(error){
+    res.status(200).json({
+      message: "Assignment deleted successfully!",
+      count: deletedData.deletedCount,
+    });
+  } catch (error) {
     res.status(500).json({
-      message:"internal Server error",
-      error:error.message
-    })
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
-}
+};
 
 module.exports = {
   createAssignment,

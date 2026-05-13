@@ -32,6 +32,7 @@ function ClassPage() {
     } catch (error) {
       toast.error(error.data?.message || "Failed to join class");
     }
+
   };
 
   const handleCreateClass = async () => {
@@ -39,9 +40,11 @@ function ClassPage() {
       if (!classForm.className || !classForm.subjectName) {
         return toast.error("Please fill all fields!");
       }
-      await createClass(classForm).unwrap();
+      let result=await createClass(classForm).unwrap();
+      console.log(result)
       toast.success("Class created successfully! 🚀");
       setClassForm({ className: "", subjectName: "" }); 
+
     } catch (error) {
       toast.error(error.data?.message || "Failed to create class");
     }
@@ -118,7 +121,7 @@ function ClassPage() {
         </div>
       </div>
 
-      <div className="p-6 max-w-[1400px] mx-auto">
+      <div className="p-6 max-w-350 mx-auto">
         {classData?.data?.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {classData.data.map((currentClass, i) => (
@@ -128,7 +131,7 @@ function ClassPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <ClassCard classDetails={currentClass} />
+                <ClassCard classDetails={currentClass} isTeacherView={user.role==="Teacher"} />
               </motion.div>
             ))}
           </div>
