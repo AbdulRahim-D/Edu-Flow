@@ -29,10 +29,15 @@ const createAssignment = async (req, res) => {
     });
     const savedAssignment = await Assignment.insertMany(studentsAssignments);
 
+
     req.io.to(classId).emit("assignment_created", {
-      message: `New Assignment:${title}`,
+      title: title,
+      description:description,
       subject: subject,
       deadline: deadline,
+      classId:savedAssignment[0].classId,
+      assignedBy:{name:req.user.name}
+
     });
 
     res
@@ -331,6 +336,7 @@ const deleteAssignment = async (req, res) => {
 
     req.io.to(classId.toString()).emit("assignment_deleted", {
       title: title,
+      description:description,
       message: "An assignment was removed by the teacher",
     });
 

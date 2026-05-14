@@ -17,7 +17,7 @@ import { assignmentSchema } from "../schema/SchemaValidation";
 
 function ClassAssignment() {
   const { user } = useSelector((state) => state.auth);
-  const { id: classId } = useParams(); // URL nundi classId
+  const { id: classId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [localClassTasks, setLocalClassTasks] = useState([]);
 
@@ -48,26 +48,30 @@ function ClassAssignment() {
     socket.emit("join_class", classId);
 
     const handleNewAssignment = (newAsgn) => {
+      console.log(newAsgn);
+      
       const asgnClassId =
         typeof newAsgn.classId === "object" ?
           newAsgn.classId._id
         : newAsgn.classId;
+      if (asgnClassId === classId.toString()) {
 
-      if (asgnClassId === classId) {
         setLocalClassTasks((prev) => {
           const exists = prev.some((t) => t._id === newAsgn._id);
           if (exists) return prev;
           return [newAsgn, ...prev];
+
         });
-        toast.success("New assignment added to stream! 📚", { id: "new-task" });
+        
       }
     };
 
     const handleDeleteAssignment = (deletedInfo) => {
+      console.log(deletedInfo);
+      
       setLocalClassTasks((prev) =>
-        prev.filter((task) => task._id !== deletedInfo.id),
+        prev.filter((task) => task.title !== deletedInfo.title && task.description!==deletedInfo.description),
       );
-      toast.error(`Assignment Deleted!`, { icon: "🗑️" });
     };
 
     socket.on("assignment_created", handleNewAssignment);
@@ -83,7 +87,7 @@ function ClassAssignment() {
     initialValues: {
       title: "",
       description: "",
-      subject: "Others",
+      subject: "",
       classId: classId,
       deadline: "",
     },
@@ -201,6 +205,7 @@ function ClassAssignment() {
                   </label>
                   <input
                     type="text"
+                    placeholder="Others"
                     {...assignmentForm.getFieldProps("subject")}
                     className="w-full px-6 py-5 bg-slate-50 border-2 border-slate-100 rounded-3xl outline-none font-black text-indigo-600"
                   />

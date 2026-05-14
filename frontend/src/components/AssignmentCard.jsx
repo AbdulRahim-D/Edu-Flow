@@ -29,8 +29,6 @@ function AssignmentCard({ assignment, isTeacherView = false }) {
 
     }
   };
-  console.log(assignment);
-  
   
 
   return (

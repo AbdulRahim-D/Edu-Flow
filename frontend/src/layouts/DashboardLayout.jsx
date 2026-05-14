@@ -47,12 +47,19 @@ function DashboardLayout() {
         duration: 6000,
       });
     };
+   const handleDeletedAssignment=(deletedInfo)=>{
+    toast.success(`${deletedInfo?.title} is deleted`,{
+      duration:6000,
+    });
+   }
 
     if (user.role === "Teacher") {
       socket.on("student_joined", handleStudentJoined);
       socket.on("task_submitted", handleTaskSubmitted);
+      socket.on("assignment_deleted",handleDeletedAssignment)
     } else if (user.role === "Student") {
       socket.on("grade_updated", handleGradeUpdated);
+      socket.on("assignment_deleted",handleDeletedAssignment)
       socket.on("assignment_created", handleAssignmentCreated);
     }
 
@@ -60,6 +67,7 @@ function DashboardLayout() {
       socket.off("student_joined", handleStudentJoined);
       socket.off("task_submitted", handleTaskSubmitted);
       socket.off("grade_updated", handleGradeUpdated);
+      socket.off("assignment_deleted",handleDeletedAssignment);
       socket.off("assignment_created", handleAssignmentCreated);
     };
   }, [user?.role, socket]);
