@@ -14,9 +14,8 @@ function ClassCard({ classDetails, isTeacherView }) {
     navigate(`/class_assignment/${classDetails._id}`);
   };
 
-  // 📋 Copy Code Logic
   const handleCopyCode = async (e) => {
-    e.stopPropagation(); // Card click event triggering avvakunda
+    e.stopPropagation(); 
     try {
       await navigator.clipboard.writeText(classDetails?.classCode);
       setCopied(true);
@@ -29,7 +28,6 @@ function ClassCard({ classDetails, isTeacherView }) {
     }
   };
 
-  // 🗑️ Delete Logic
   const handleDelete = async (e) => {
     e.stopPropagation();
     const confirmDelete = window.confirm("Are you sure you want to delete this class? 🔥");
@@ -45,12 +43,10 @@ function ClassCard({ classDetails, isTeacherView }) {
 
   return (
     <div onClick={navigateClassDetails} className="relative group w-full max-w-[320px] cursor-pointer">
-      {/* Background Blur Effect */}
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-2xl blur opacity-10 group-hover:opacity-40 transition duration-500"></div>
+      <div className="absolute -inset-0.5 bg-linear-to-r from-indigo-500 to-blue-600 rounded-2xl blur opacity-10 group-hover:opacity-40 transition duration-500"></div>
       
       <div className="relative bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
         
-        {/* Header Section */}
         <div className="p-5 pb-0 flex justify-between items-start">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest bg-indigo-50 px-2 py-0.5 rounded-full">
@@ -78,7 +74,6 @@ function ClassCard({ classDetails, isTeacherView }) {
           </div>
         </div>
 
-        {/* Decorative Divider */}
         <div className="relative flex items-center my-4 px-2">
           <div className="absolute left-0 w-3 h-6 bg-slate-50 rounded-r-full border border-slate-100"></div>
           <div className="w-full border-t border-dashed border-slate-200 mx-4"></div>
@@ -95,7 +90,6 @@ function ClassCard({ classDetails, isTeacherView }) {
             <span className="text-xs font-bold text-slate-700">{classDetails?.teacher?.name}</span>
           </div>
 
-          {/* 🔗 Clickable Class Code Field */}
           <div 
             onClick={handleCopyCode}
             className="flex justify-between items-center bg-slate-50 p-2 rounded-xl border border-slate-100 hover:bg-indigo-50 hover:border-indigo-100 transition-all group/code"
