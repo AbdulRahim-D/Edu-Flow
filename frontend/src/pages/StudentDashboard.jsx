@@ -8,29 +8,20 @@ import toast, { Toaster } from "react-hot-toast";
 import { socket } from "../socket";
 import StudentOverview from "../components/StudentOverview";
 
-
-
 function StudentDashboard() {
-  const { data: assignmentData, isLoading: assignmentLoading } = useGetStudentAssignmentQuery();
+  const { data: assignmentData, isLoading: assignmentLoading } =
+    useGetStudentAssignmentQuery();
   const { data: classData, isLoading: classLoading } = useGetClassQuery();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (classData?.data) {
-      classData.data.forEach((item) => {
-        socket.emit("join_class", item._id);
-      });
-    }
-
-  }, [classData]);
 
   if (assignmentLoading || classLoading) return <Loading />;
 
   const totalAssignments = assignmentData?.data?.length || 0;
   const totalClasses = classData?.data?.length || 0;
-  const pendingTasks = assignmentData?.data?.filter(
-    (t) => t.status === "To-Do" || t.status === "In-Progress"
-  ).length || 0;
+  const pendingTasks =
+    assignmentData?.data?.filter(
+      (t) => t.status === "To-Do" || t.status === "In-Progress",
+    ).length || 0;
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -53,7 +44,9 @@ function StudentDashboard() {
           </div>
           <div>
             <h3 className="text-xl font-bold text-gray-800">{totalClasses}</h3>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Total Classes</p>
+            <p className="text-xs text-gray-500 uppercase tracking-wide">
+              Total Classes
+            </p>
           </div>
         </div>
 
@@ -62,28 +55,40 @@ function StudentDashboard() {
             <List size={24} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-gray-800">{totalAssignments}</h3>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Total Assignments</p>
+            <h3 className="text-xl font-bold text-gray-800">
+              {totalAssignments}
+            </h3>
+            <p className="text-xs text-gray-500 uppercase tracking-wide">
+              Total Assignments
+            </p>
           </div>
         </div>
 
         <div className="bg-white border border-gray-200 p-5 rounded-lg shadow-sm flex items-center gap-4">
-          <div className={`p-3 rounded-md ${pendingTasks > 0 ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"}`}>
-            {pendingTasks > 0 ? <Clock size={24} /> : <CheckCircle size={24} />}
+          <div
+            className={`p-3 rounded-md ${pendingTasks > 0 ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-600"}`}
+          >
+            {pendingTasks > 0 ?
+              <Clock size={24} />
+            : <CheckCircle size={24} />}
           </div>
           <div>
             <h3 className="text-xl font-bold text-gray-800">
               {pendingTasks > 0 ? `${pendingTasks} Pending` : "All Done!"}
             </h3>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Assignment Status</p>
+            <p className="text-xs text-gray-500 uppercase tracking-wide">
+              Assignment Status
+            </p>
           </div>
         </div>
       </div>
 
       <div className="mt-10 bg-white border border-gray-200 rounded-lg p-6">
-        <h2 className="text-sm font-bold text-gray-700 uppercase mb-4 tracking-wider font-mono">Recent Activity</h2>
+        <h2 className="text-sm font-bold text-gray-700 uppercase mb-4 tracking-wider font-mono">
+          Recent Activity
+        </h2>
         <div className="py-10 border-2 border-dashed border-gray-100 rounded-md text-center">
-         <StudentOverview/>
+          <StudentOverview />
         </div>
       </div>
     </div>

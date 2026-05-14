@@ -51,8 +51,11 @@ const joinClass = async (req, res) => {
     );
     if (joinClass) {
       req.io.to(joinClass._id.toString()).emit("student_joined", {
-        message: `${req.user.name} has joined the class`,
+        studentName: req.user.name,
+        className:joinClass.className,
         studentId: req.user.id,
+        updatedClass:joinClass,
+
       });
     }
     res

@@ -14,16 +14,6 @@ function TeacherDashboard() {
   const { data: assignmentData, isLoading: assignmentsLoading } =
     useGetTeacherAssignmentQuery();
 
-  useEffect(() => {
-    if (classData?.data) {
-      classData.data.forEach((item) => {
-        socket.emit("join_class", item._id);
-      });
-    }
-
-  }, [classData]);
-
-
   socket.on("message", (msg) => {
     console.log(msg);
   });

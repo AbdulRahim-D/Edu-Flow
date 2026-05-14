@@ -18,18 +18,19 @@ function AssignmentCard({ assignment, isTeacherView = false }) {
     if (window.confirm("Are you sure you want to delete this assignment? 🔥")) {
       try {
         const assignmentData = {
-          title: assignment.title,
+          title: assignment._id,
           description: assignment.description,
-          classId: assignment.classId
+          classId: assignment.classId._id
         };
         await deleteAssignment(assignmentData).unwrap();
-        toast.success("Assignment removed successfully!");
       } catch (err) {
         toast.error(err?.data?.message || "Delete failed!");
       }
+
     }
   };
   console.log(assignment);
+  
   
 
   return (

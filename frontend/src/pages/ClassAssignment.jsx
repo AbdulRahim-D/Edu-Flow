@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useFormik } from "formik";
@@ -16,8 +16,8 @@ import {
 import { assignmentSchema } from "../schema/SchemaValidation";
 
 function ClassAssignment() {
-  const user = useSelector((state) => state.auth.user);
-  const { id } = useParams();
+  const { user } = useSelector((state) => state.auth);
+  const { id: classId } = useParams(); // URL nundi classId
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [localClassTasks, setLocalClassTasks] = useState([]);
 
@@ -25,73 +25,82 @@ function ClassAssignment() {
     useCreateAssignmentMutation();
 
   const { data: studentRes, isLoading: sLoading } =
-    useGetStudentAssignmentQuery(undefined, { skip: user.role !== "Student" });
+    useGetStudentAssignmentQuery(undefined, { skip: user?.role !== "Student" });
   const { data: teacherRes, isLoading: tLoading } =
-    useGetTeacherAssignmentQuery(undefined, { skip: user.role !== "Teacher" });
+    useGetTeacherAssignmentQuery(undefined, { skip: user?.role !== "Teacher" });
 
   useEffect(() => {
     const rawData =
-      user.role === "Student" ? studentRes?.data : teacherRes?.data;
+      user?.role === "Student" ? studentRes?.data : teacherRes?.data;
     if (rawData) {
       const filtered = rawData.filter((task) => {
-        const assignmentClassId =
+        const taskClassId =
           typeof task.classId === "object" ? task.classId._id : task.classId;
-        return assignmentClassId === id;
+        return taskClassId === classId;
       });
       setLocalClassTasks(filtered);
     }
-  }, [studentRes, teacherRes, id, user.role]);
+  }, [studentRes, teacherRes, classId, user?.role]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !classId) return;
 
-    socket.emit("join_class", id);
+    socket.emit("join_class", classId);
 
-    socket.on("assignment_created", (newAsgn) => {
-      setLocalClassTasks((prev) => {
-        const exists = prev.find((t) => t._id === newAsgn._id);
-        if (exists) return prev;
-        return [newAsgn, ...prev];
-      });
-      toast.success("New Assignment Received!");
-    });
+    const handleNewAssignment = (newAsgn) => {
+      const asgnClassId =
+        typeof newAsgn.classId === "object" ?
+          newAsgn.classId._id
+        : newAsgn.classId;
 
-    socket.on("assignment_deleted", (deletedInfo) => {
+      if (asgnClassId === classId) {
+        setLocalClassTasks((prev) => {
+          const exists = prev.some((t) => t._id === newAsgn._id);
+          if (exists) return prev;
+          return [newAsgn, ...prev];
+        });
+        toast.success("New assignment added to stream! 📚", { id: "new-task" });
+      }
+    };
+
+    const handleDeleteAssignment = (deletedInfo) => {
       setLocalClassTasks((prev) =>
-        prev.filter((task) => task.title !== deletedInfo.title),
+        prev.filter((task) => task._id !== deletedInfo.id),
       );
-      toast.error(`Assignment Removed: ${deletedInfo.title}`, { icon: "🗑️" });
-    });
+      toast.error(`Assignment Deleted!`, { icon: "🗑️" });
+    };
+
+    socket.on("assignment_created", handleNewAssignment);
+    socket.on("assignment_deleted", handleDeleteAssignment);
 
     return () => {
-      socket.off("assignment_created");
-      socket.off("assignment_deleted");
+      socket.off("assignment_created", handleNewAssignment);
+      socket.off("assignment_deleted", handleDeleteAssignment);
     };
-  }, [id]);
+  }, [classId, socket]);
 
   const assignmentForm = useFormik({
     initialValues: {
       title: "",
       description: "",
       subject: "Others",
-      classId: id,
+      classId: classId,
       deadline: "",
     },
     validationSchema: assignmentSchema,
     onSubmit: async (values, { resetForm }) => {
       try {
         await createAssignment(values).unwrap();
+        toast.success("Assignment Published! 🚀");
         resetForm();
         setIsModalOpen(false);
       } catch (error) {
-        toast.error(error.data?.message || "Creation Failed");
+        toast.error(error.data?.message || "Publishing Failed");
       }
     },
   });
 
   if (sLoading || tLoading) return <Loading />;
-
-  const isTeacher = user.role === "Teacher";
 
   return (
     <div className="p-6 min-h-screen bg-slate-50/50">
@@ -99,136 +108,127 @@ function ClassAssignment() {
 
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase italic">
-            {isTeacher ? "Class Submissions" : "My Learning Path"}
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight uppercase italic underline decoration-indigo-500 decoration-8 underline-offset-4">
+            {user.role === "Teacher" ? "Class Submissions" : "My Learning Path"}
           </h2>
-          <p className="text-slate-500 mt-1 font-medium">
-            Live classroom activity stream is active.
+          <p className="text-slate-500 mt-2 font-medium">
+            Live stream for Class ID:{" "}
+            <span className="text-indigo-600 font-bold">{classId}</span>
           </p>
         </div>
 
-        {isTeacher && (
+        {user.role === "Teacher" && (
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-2xl transition-all shadow-xl font-black active:scale-95"
+            className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-4xl transition-all shadow-xl shadow-indigo-100 font-black active:scale-95"
           >
-            <Plus size={20} /> CREATE TASK
+            <Plus size={22} /> CREATE TASK
           </button>
         )}
       </div>
 
       {localClassTasks.length > 0 ?
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in zoom-in duration-500">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
           {localClassTasks.map((task) => (
             <AssignmentCard
               key={task._id}
               assignment={task}
-              isTeacherView={isTeacher}
+              isTeacherView={user.role === "Teacher"}
             />
           ))}
         </div>
-      : <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-200 shadow-sm mx-auto max-w-4xl">
-          <div className="bg-slate-50 p-6 rounded-full mb-4">
-            <BookOpen className="text-slate-300" size={48} />
+      : <div className="flex flex-col items-center justify-center py-32 bg-white rounded-[4rem] border-4 border-dashed border-slate-100 mx-auto max-w-4xl">
+          <div className="bg-slate-50 p-10 rounded-full mb-6">
+            <BookOpen className="text-slate-200" size={64} />
           </div>
-          <p className="text-slate-400 font-bold text-lg">
-            Waiting for assignments...
+          <p className="text-slate-400 font-black text-xl uppercase tracking-tighter">
+            No assignments in this stream yet!
           </p>
         </div>
       }
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-sm transition-all overflow-hidden">
-          <div className="w-full max-w-md bg-white h-full shadow-2xl p-8 animate-in slide-in-from-right duration-300 flex flex-col">
-            <div className="flex items-center justify-between mb-10">
-              <h3 className="text-2xl font-black text-slate-800 tracking-tighter uppercase underline decoration-indigo-500 decoration-4">
-                NEW TASK
+        <div className="fixed inset-0 z-100 flex justify-end">
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => setIsModalOpen(false)}
+          />
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl p-10 animate-in slide-in-from-right duration-500 flex flex-col rounded-l-[3rem]">
+            <div className="flex items-center justify-between mb-12">
+              <h3 className="text-3xl font-black text-slate-800 tracking-tighter uppercase italic">
+                Publish Task
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                className="p-3 bg-slate-50 hover:bg-rose-50 hover:text-rose-500 text-slate-400 rounded-2xl transition-all"
               >
-                <X size={24} className="text-slate-500" />
+                <X size={24} />
               </button>
             </div>
 
             <form
               onSubmit={assignmentForm.handleSubmit}
-              className="space-y-6 flex-1"
+              className="space-y-8 flex-1 overflow-y-auto pr-2 custom-scrollbar"
             >
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">
                   Topic Title
                 </label>
                 <input
                   type="text"
                   {...assignmentForm.getFieldProps("title")}
-                  className={`w-full px-5 py-4 bg-slate-50 border-2 ${assignmentForm.touched.title && assignmentForm.errors.title ? "border-rose-400" : "border-slate-100"} rounded-2xl focus:border-indigo-500 outline-none transition-all font-bold`}
-                  placeholder="Enter topic..."
+                  className={`w-full px-6 py-5 bg-slate-50 border-2 ${assignmentForm.touched.title && assignmentForm.errors.title ? "border-rose-400" : "border-slate-100"} rounded-3xl focus:bg-white focus:border-indigo-500 focus:ring-4 ring-indigo-50 outline-none transition-all font-bold text-slate-700`}
+                  placeholder="e.g. React Components Deep Dive"
                 />
-                {assignmentForm.touched.title &&
-                  assignmentForm.errors.title && (
-                    <p className="text-rose-500 text-[10px] font-bold mt-1 ml-2">
-                      {assignmentForm.errors.title}
-                    </p>
-                  )}
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                  Task Details
+                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                  Instructions
                 </label>
                 <textarea
-                  rows="4"
+                  rows="5"
                   {...assignmentForm.getFieldProps("description")}
-                  className={`w-full p-5 bg-slate-50 border-2 ${assignmentForm.touched.description && assignmentForm.errors.description ? "border-rose-400" : "border-slate-100"} rounded-2xl focus:border-indigo-500 outline-none transition-all resize-none font-medium`}
-                  placeholder="Instructions for students..."
+                  className="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-3xl focus:bg-white focus:border-indigo-500 outline-none transition-all resize-none font-medium text-slate-600"
+                  placeholder="Detail the submission requirements..."
                 />
-                {assignmentForm.touched.description &&
-                  assignmentForm.errors.description && (
-                    <p className="text-rose-500 text-[10px] font-bold mt-1 ml-2">
-                      {assignmentForm.errors.description}
-                    </p>
-                  )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">
                     Subject
                   </label>
                   <input
                     type="text"
                     {...assignmentForm.getFieldProps("subject")}
-                    className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold"
+                    className="w-full px-6 py-5 bg-slate-50 border-2 border-slate-100 rounded-3xl outline-none font-black text-indigo-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                    Submission Due
+                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                    Due Date
                   </label>
                   <input
                     type="date"
                     {...assignmentForm.getFieldProps("deadline")}
-                    className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-slate-600"
+                    className="w-full px-6 py-5 bg-slate-50 border-2 border-slate-100 rounded-3xl outline-none font-bold text-slate-600"
                   />
                 </div>
               </div>
 
-              <div className="pt-8">
-                <button
-                  type="submit"
-                  disabled={isCreating}
-                  className="w-full flex items-center justify-center gap-3 bg-indigo-600 text-white py-5 rounded-3xl font-black hover:bg-indigo-700 transition-all active:scale-[0.98] disabled:opacity-70 shadow-xl shadow-indigo-100"
-                >
-                  {isCreating ?
-                    "PREPARING..."
-                  : <>
-                      <Send size={20} /> PUBLISH TO CLASS
-                    </>
-                  }
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={isCreating}
+                className="w-full flex items-center justify-center gap-4 bg-indigo-600 text-white py-6 rounded-4xl font-black text-lg hover:bg-black transition-all active:scale-[0.95] disabled:opacity-50 shadow-2xl shadow-indigo-200 mt-10"
+              >
+                {isCreating ?
+                  "SYNCING..."
+                : <>
+                    <Send size={22} /> PUBLISH TO CLASS
+                  </>
+                }
+              </button>
             </form>
           </div>
         </div>
