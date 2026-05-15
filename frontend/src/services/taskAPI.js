@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API } from "../../API";
 
 export const taskAPI = createApi({
   reducerPath: "taskAPI",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:6142/api/tasks",
+    baseUrl: `${API}/tasks`,
     credentials: "include",
   }),
   tagTypes: ["Assignments"],

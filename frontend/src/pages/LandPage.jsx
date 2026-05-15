@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { GraduationCap, ArrowRight } from "lucide-react"; // Icons kosam
+import { API } from "../../API";
 
 function LandPage() {
   return (
