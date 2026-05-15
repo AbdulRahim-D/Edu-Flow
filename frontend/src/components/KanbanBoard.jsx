@@ -7,7 +7,7 @@ import {
 import KanbanColumn from "./KanbanColumn";
 import Loading from "./Loading";
 import toast, { Toaster } from "react-hot-toast";
-import { X, Send, Layout } from "lucide-react";
+import { X, Send, LayoutGrid, AlertTriangle } from "lucide-react";
 import { socket } from "../socket";
 
 function KanbanBoard({ classId }) {
@@ -126,24 +126,36 @@ function KanbanBoard({ classId }) {
   };
 
   return (
-    <div className="h-[calc(100vh-100px)] flex flex-col overflow-hidden px-4">
-      <Toaster position="top-center" />
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Layout className="text-indigo-600" size={20} />
-          <h2 className="text-xl font-black text-slate-800 tracking-tight">
+    <div className="h-[calc(100vh-180px)] flex flex-col overflow-hidden font-['Poppins',sans-serif] text-slate-800 antialiased selection:bg-blue-50">
+      <Toaster 
+        position="top-right" 
+        toastOptions={{
+          style: {
+            background: "#0F172A",
+            color: "#F8FAFC",
+            borderRadius: "14px",
+            fontSize: "14px",
+            fontWeight: "500",
+          }
+        }}
+      />
+      
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2.5">
+          <LayoutGrid className="text-blue-500" size={22} />
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
             Assignment Tracker
           </h2>
         </div>
         {gradeMessage && (
-          <div className="bg-amber-100 text-amber-700 px-4 py-1.5 rounded-full text-xs font-bold border border-amber-200 animate-pulse">
+          <div className="bg-amber-50 text-amber-600 border border-amber-100 px-4 py-1.5 rounded-xl text-xs font-semibold tracking-wide animate-pulse">
             ⚠️ {gradeMessage}
           </div>
         )}
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex-1 flex gap-5 overflow-x-auto pb-4 no-scrollbar items-start">
+        <div className="flex-1 flex gap-6 overflow-x-auto pb-6 items-start no-scrollbar snap-x">
           {columns.map((col) => (
             <KanbanColumn
               key={col}
@@ -157,36 +169,61 @@ function KanbanBoard({ classId }) {
       </DragDropContext>
 
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-100 flex justify-end">
-          <div className="w-full max-w-md bg-white h-screen shadow-2xl p-10 flex flex-col animate-in slide-in-from-right duration-500">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">
-                Submit Work
-              </h2>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex justify-end transition-all duration-300">
+          <div className="w-full max-w-md bg-white h-screen shadow-[0_0_50px_rgba(0,0,0,0.05)] p-8 flex flex-col animate-in slide-in-from-right duration-300 border-l border-slate-100/80">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                  Submit Work
+                </h2>
+                <p className="text-xs font-medium text-slate-400 tracking-wide mt-0.5">Provide your assignment workspace link.</p>
+              </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
-            <p className="text-slate-500 mb-6 text-sm italic">
-              Careful! Submitting after the deadline will be marked as late.
-            </p>
+            
+            <div className="space-y-3 mb-6">
+              <p className="text-amber-600 bg-amber-50/50 border border-amber-100/50 px-4 py-3 rounded-xl text-xs font-medium leading-relaxed">
+                Careful! Submitting after the assigned target deadline passes logs a late marker to the instructor timeline view.
+              </p>
+              <div className="flex items-start gap-2.5 text-rose-600 bg-rose-50/50 border border-rose-100/50 px-4 py-3 rounded-xl text-xs font-medium leading-relaxed">
+                <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                <span><strong>WARNING:</strong> Double-check your submission field before submitting. Providing an invalid or broken link may lead to 0 marks or an immediate task failure.</span>
+              </div>
+            </div>
+
             <div className="space-y-4">
-              <input
-                type="url"
-                placeholder="https://your-submission-link.com"
-                className="w-full p-5 bg-slate-50 border-2 border-slate-100 focus:border-indigo-500 rounded-3xl outline-none transition-all"
-                value={submissionLink}
-                onChange={(e) => setSubmissionLink(e.target.value)}
-              />
-              <button
-                onClick={handleFinalSubmit}
-                className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl font-black flex items-center justify-center gap-3 shadow-xl shadow-indigo-200 active:scale-95 transition-transform"
-              >
-                <Send size={20} /> SUBMIT ASSIGNMENT
-              </button>
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                  Submission Link
+                </label>
+                <input
+                  type="text"
+                  placeholder="Paste your link or text work here..."
+                  className="w-full px-4 py-3.5 bg-slate-50/50 border border-slate-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 rounded-2xl outline-none text-sm font-medium transition-all duration-200"
+                  value={submissionLink}
+                  onChange={(e) => setSubmissionLink(e.target.value)}
+                />
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 space-y-3">
+                <button
+                  onClick={handleFinalSubmit}
+                  className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-blue-100 transition-all active:scale-[0.99]"
+                >
+                  <Send size={15} /> <span>Submit Assignment</span>
+                </button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="w-full py-4 bg-white border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-2xl font-bold text-sm transition-all active:scale-[0.99]"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

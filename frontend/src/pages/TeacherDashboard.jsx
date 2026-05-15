@@ -26,31 +26,46 @@ function TeacherDashboard() {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 },
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } },
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen">
-      {/* 3. Toaster component ni ikkada render cheyali */}
-      <Toaster position="top-right" reverseOrder={false} />
+    <div className="bg-[#FAFAFC] min-h-screen font-['Poppins',sans-serif] selection:bg-blue-50 text-slate-800 antialiased">
+      <Toaster 
+        position="top-right" 
+        reverseOrder={false} 
+        toastOptions={{
+          style: {
+            background: "#0F172A",
+            color: "#F8FAFC",
+            borderRadius: "14px",
+            fontSize: "14px",
+            fontWeight: "500",
+          }
+        }}
+      />
 
-      <div className="sticky top-0 z-30 bg-slate-50/80 backdrop-blur-md border-b border-slate-200 px-6 py-4">
-        <div className="max-w-350 mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="sticky top-0 z-30 bg-[#FAFAFC]/80 backdrop-blur-md border-b border-slate-200/60 px-2 py-5">
+        <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <LayoutDashboard className="text-blue-600" size={24} />
-              <h1 className="text-2xl font-black text-slate-800 tracking-tight">
-                Teacher Dashboard
-              </h1>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-500/10 rounded-xl text-blue-500">
+                <LayoutDashboard size={20} strokeWidth={2.5} />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                  Teacher Dashboard
+                </h1>
+                <p className="hidden sm:block text-slate-400 text-xs font-medium tracking-wide mt-0.5">
+                  Overview of your teaching progress and analytics
+                </p>
+              </div>
             </div>
-            <p className="hidden md:block text-slate-500 text-xs font-medium ml-8">
-              Overview of your teaching progress and analytics
-            </p>
           </div>
         </div>
       </div>
@@ -59,21 +74,21 @@ function TeacherDashboard() {
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="p-6 max-w-350 mx-auto"
+        className="py-8 max-w-[1400px] mx-auto space-y-8"
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <motion.div
             variants={itemVariants}
-            className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4"
+            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.015)] flex items-center gap-5 hover:border-blue-500/20 transition-all duration-300"
           >
-            <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
-              <School size={28} />
+            <div className="p-4 bg-blue-50 rounded-2xl text-blue-500 shadow-sm border border-blue-100/50">
+              <School size={24} strokeWidth={2} />
             </div>
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <div className="space-y-0.5">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                 Classes
               </p>
-              <h3 className="text-2xl font-black text-slate-800">
+              <h3 className="text-3xl font-bold text-slate-900 tracking-tight">
                 {classData?.data?.length || 0}
               </h3>
             </div>
@@ -81,16 +96,16 @@ function TeacherDashboard() {
 
           <motion.div
             variants={itemVariants}
-            className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4"
+            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.015)] flex items-center gap-5 hover:border-emerald-500/20 transition-all duration-300"
           >
-            <div className="p-3 bg-green-50 rounded-xl text-green-600">
-              <Users size={28} />
+            <div className="p-4 bg-emerald-50 rounded-2xl text-emerald-500 shadow-sm border border-emerald-100/50">
+              <Users size={24} strokeWidth={2} />
             </div>
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <div className="space-y-0.5">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                 Total Students
               </p>
-              <h3 className="text-2xl font-black text-slate-800">
+              <h3 className="text-3xl font-bold text-slate-900 tracking-tight">
                 {totalStudents}
               </h3>
             </div>
@@ -98,23 +113,28 @@ function TeacherDashboard() {
 
           <motion.div
             variants={itemVariants}
-            className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4"
+            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.015)] flex items-center gap-5 sm:col-span-2 lg:col-span-1 hover:border-amber-500/20 transition-all duration-300"
           >
-            <div className="p-3 bg-orange-50 rounded-xl text-orange-600">
-              <NotebookPen size={28} />
+            <div className="p-4 bg-amber-50 rounded-2xl text-amber-500 shadow-sm border border-amber-100/50">
+              <NotebookPen size={24} strokeWidth={2} />
             </div>
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <div className="space-y-0.5">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                 Assignments
               </p>
-              <h3 className="text-2xl font-black text-slate-800">
+              <h3 className="text-3xl font-bold text-slate-900 tracking-tight">
                 {assignmentData?.data?.length || 0}
               </h3>
             </div>
           </motion.div>
         </div>
 
-        <TeacherGraph />
+        <motion.div 
+          variants={itemVariants}
+          className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-[0_12px_40px_rgba(0,0,0,0.02)]"
+        >
+          <TeacherGraph />
+        </motion.div>
       </motion.div>
     </div>
   );

@@ -3,15 +3,14 @@ import { useSelector } from "react-redux";
 import { useGetTeacherAssignmentQuery, useGetAssignmentStatsQuery } from "../services/taskAPI";
 import { useGetClassQuery } from "../services/classAPI";
 import Loading from "../components/Loading";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Pie, Cell, Legend,CartesianGrid } from "recharts";
-import { Layout, FileText, Users, CheckCircle } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
+import { Layout, FileText, Users, CheckCircle, BarChart3 } from "lucide-react";
 
 function TeacherGraph() {
     const { user } = useSelector((state) => state.auth);
     const [selectedClass, setSelectedClass] = useState("");
     const [selectedAssignmentDetails, setSelectedAssignmentDetails] = useState(null);
 
-    // Fetch Teacher Data
     const { data: teacherRes, isLoading: teacherTasksLoading } = useGetTeacherAssignmentQuery(undefined, { skip: user.role !== "Teacher" });
     const { data: teacherClassList, isLoading: teacherClassesLoading } = useGetClassQuery(undefined, { skip: user.role !== "Teacher" });
 
@@ -19,10 +18,7 @@ function TeacherGraph() {
         selectedAssignmentDetails?.assignmentId, 
         { skip: !selectedAssignmentDetails?.assignmentId }
     );
-    console.log(assignmentStats);
-    console.log(selectedAssignmentDetails?.assignmentId);
-    
-    
+
 
     const selectedTeacherAssignments = teacherRes?.data?.filter(
         assignment => (typeof assignment.classId === 'object' ? assignment.classId._id : assignment.classId) === selectedClass
@@ -36,24 +32,24 @@ function TeacherGraph() {
 
     if (teacherTasksLoading || teacherClassesLoading) return <Loading />;
 
-    const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444'];
+    const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
     return (
-        <div className="p-6 min-h-screen bg-slate-50">
-            {/* Header Area */}
-            <div className="mb-8">
-                <h2 className="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
-                    <Layout className="text-indigo-600" /> Assignment Analytics
-                </h2>
-                <p className="text-slate-500">Track student progress and submission statistics visually.</p>
+        <div className="p-0 bg-[#FAFAFC] font-['Poppins',sans-serif] text-slate-800 antialiased">
+            <div className="mb-8 flex items-center justify-between">
+                <div>
+                    <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+                        <BarChart3 className="text-blue-500" size={22} /> Assignment Analytics
+                    </h2>
+                    <p className="text-slate-400 text-sm mt-1 font-medium tracking-wide">Track student progress and submission statistics visually.</p>
+                </div>
             </div>
 
-            {/* Selectors Bar */}
-            <div className="flex flex-wrap gap-4 mb-8 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-                    <label className="text-xs font-bold text-slate-400 uppercase ml-1">Select Class</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8 bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.015)]">
+                <div className="flex flex-col gap-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Select Class</label>
                     <select
-                        className="p-3 border border-slate-200 rounded-xl bg-slate-50 shadow-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
+                        className="w-full px-4 py-3.5 border border-slate-100 rounded-xl bg-slate-50 text-sm font-semibold text-slate-700 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all cursor-pointer"
                         value={selectedClass}
                         onChange={(e) => {
                             setSelectedClass(e.target.value);
@@ -67,10 +63,10 @@ function TeacherGraph() {
                     </select>
                 </div>
 
-                <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-                    <label className="text-xs font-bold text-slate-400 uppercase ml-1">Select Assignment</label>
+                <div className="flex flex-col gap-2">
+                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Select Assignment</label>
                     <select
-                        className="p-3 border border-slate-200 rounded-xl bg-slate-50 shadow-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer disabled:opacity-50"
+                        className="w-full px-4 py-3.5 border border-slate-100 rounded-xl bg-slate-50 text-sm font-semibold text-slate-700 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         value={selectedAssignmentDetails?._id || ""}
                         onChange={handleAssignmentChange}
                         disabled={!selectedClass}
@@ -85,55 +81,78 @@ function TeacherGraph() {
                 </div>
             </div>
 
-            {/* Stats Overview Grid */}
             {selectedAssignmentDetails && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left Side: Summary Cards */}
-                    <div className="space-y-4">
-                        <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-                            <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-2">
-                                <FileText size={18} className="text-indigo-500"/> Assignment Info
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <div className="lg:col-span-4 flex flex-col gap-5">
+                        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.015)]">
+                            <h4 className="font-bold text-sm text-slate-900 mb-5 flex items-center gap-2 pb-3 border-b border-slate-50 tracking-tight">
+                                <FileText size={16} className="text-blue-500"/> Assignment Info
                             </h4>
-                            <div className="space-y-3">
-                                <p className="text-sm text-slate-600"><span className="font-semibold">Title:</span> {selectedAssignmentDetails.title}</p>
-                                <p className="text-sm text-slate-600"><span className="font-semibold">Subject:</span> {selectedAssignmentDetails.subject}</p>
-                                <p className="text-sm text-slate-600 line-clamp-2"><span className="font-semibold">Desc:</span> {selectedAssignmentDetails.description}</p>
+                            <div className="space-y-3.5">
+                                <div className="space-y-0.5">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Title</span>
+                                    <p className="text-sm font-semibold text-slate-800">{selectedAssignmentDetails.title}</p>
+                                </div>
+                                <div className="space-y-0.5">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Subject</span>
+                                    <p className="text-sm font-medium text-slate-600">{selectedAssignmentDetails.subject}</p>
+                                </div>
+                                <div className="space-y-0.5">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Description</span>
+                                    <p className="text-sm font-medium text-slate-500 line-clamp-3 leading-relaxed">{selectedAssignmentDetails.description}</p>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Quick Count Cards */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-indigo-50 p-5 rounded-3xl border border-indigo-100">
-                                <Users className="text-indigo-600 mb-2" size={24}/>
-                                <p className="text-xs font-bold text-indigo-400 uppercase">Total Submissions</p>
-                                <h3 className="text-2xl font-black text-indigo-700">{assignmentStats?.count || 0}</h3>
+                            <div className="bg-blue-50/40 p-5 rounded-2xl border border-blue-100/50 space-y-1">
+                                <div className="p-2 bg-white rounded-xl text-blue-500 w-fit border border-blue-100/30 shadow-sm">
+                                    <Users size={16}/>
+                                </div>
+                                <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider pt-2">Submissions</p>
+                                <h3 className="text-2xl font-bold text-blue-600 tracking-tight">{assignmentStats?.count || 0}</h3>
                             </div>
-                            <div className="bg-emerald-50 p-5 rounded-3xl border border-emerald-100">
-                                <CheckCircle className="text-emerald-600 mb-2" size={24}/>
-                                <p className="text-xs font-bold text-emerald-400 uppercase">Graded Tasks</p>
-                                <h3 className="text-2xl font-black text-emerald-700">
+                            <div className="bg-emerald-50/40 p-5 rounded-2xl border border-emerald-100/50 space-y-1">
+                                <div className="p-2 bg-white rounded-xl text-emerald-500 w-fit border border-emerald-100/30 shadow-sm">
+                                    <CheckCircle size={16}/>
+                                </div>
+                                <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider pt-2">Graded Tasks</p>
+                                <h3 className="text-2xl font-bold text-emerald-600 tracking-tight">
                                     {assignmentStats?.data?.find(s => s._id === "Graded")?.count || 0}
                                 </h3>
                             </div>
                         </div>
                     </div>
 
-                    {/* Middle: Bar Chart */}
-                    <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl">
-                        <h4 className="font-bold text-slate-800 mb-6 uppercase tracking-wider text-sm">Submission Status Breakdown</h4>
-                        {statsLoading ? <div className="h-64 flex items-center justify-center">Loading Charts...</div> : (
-                            <div className="h-80 w-full">
+                    <div className="lg:col-span-8 bg-white p-6 sm:p-8 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.015)]">
+                        <h4 className="font-bold text-slate-900 mb-6 tracking-tight text-sm">Submission Status Breakdown</h4>
+                        {statsLoading ? (
+                            <div className="h-72 flex items-center justify-center text-slate-400 text-sm font-medium tracking-wide">
+                                Loading Analytics...
+                            </div>
+                        ) : (
+                            <div className="h-72 w-full">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={assignmentStats?.data}>
-                                        <XAxis dataKey="_id" axisLine={true} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                                        <YAxis axisLine={true} tickLine={true} tick={{fill: '#94a3b8'}} />
-                                        <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} />
-                                        <Bar dataKey="count" radius={[10, 10, 0, 0]} barSize={50}>
+                                    <BarChart data={assignmentStats?.data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="4 4" stroke="#f1f5f9" vertical={false} />
+                                        <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontFamily: 'Poppins', fontWeight: 500}} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontFamily: 'Poppins'}} />
+                                        <Tooltip 
+                                            cursor={{fill: '#f8fafc'}} 
+                                            contentStyle={{
+                                                background: '#0f172a', 
+                                                borderRadius: '12px', 
+                                                border: 'none', 
+                                                color: '#f8fafc',
+                                                fontFamily: 'Poppins',
+                                                fontSize: '12px',
+                                                boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)'
+                                            }} 
+                                        />
+                                        <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={40}>
                                             {assignmentStats?.data?.map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                
                                             ))}
-                                            <CartesianGrid strokeDasharray="3 3" />
                                         </Bar>
                                     </BarChart>
                                 </ResponsiveContainer>
@@ -144,11 +163,11 @@ function TeacherGraph() {
             )}
 
             {!selectedAssignmentDetails && (
-                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-slate-200">
-                    <div className="bg-slate-50 p-6 rounded-full mb-4">
-                        <Layout size={48} className="text-slate-300" />
+                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-dashed border-slate-200/80">
+                    <div className="bg-slate-50 p-4 rounded-xl mb-4 text-slate-300 border border-slate-100">
+                        <Layout size={32} />
                     </div>
-                    <p className="text-slate-400 font-medium">Please select a class and assignment to view analytics.</p>
+                    <p className="text-slate-400 text-sm font-semibold tracking-wide text-center px-4">Please select a class and assignment to view analytics.</p>
                 </div>
             )}
         </div>

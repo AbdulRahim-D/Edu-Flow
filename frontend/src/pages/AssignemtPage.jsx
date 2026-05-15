@@ -10,6 +10,7 @@ import KanbanBoard from "../components/KanbanBoard";
 import TeacherKanbanBoard from "../components/TeacherKanbanBoard";
 import { useFormik } from "formik";
 import { socket } from "../socket";
+import { KanbanSquare, Layers, FolderKanban } from "lucide-react";
 
 function AssignmentPage() {
   const { user } = useSelector((state) => state.auth);
@@ -62,56 +63,67 @@ function AssignmentPage() {
 
   if (user.role === "Teacher") {
     return (
-      <div className="p-6 bg-slate-50 min-h-screen">
+      <div className="p-0 bg-[#FAFAFC] font-['Poppins',sans-serif] text-slate-800 antialiased">
         <div className="mb-8">
-          <h1 className="text-2xl font-extrabold text-slate-800">
-            Class Assignments
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <FolderKanban className="text-blue-500" size={22} /> Class Assignments
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-400 text-sm mt-1 font-medium tracking-wide">
             Monitor progress across all your assigned classes.
           </p>
         </div>
 
-        <div className="flex gap-4 mb-8">
-          <select
-            className="p-2 border rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-indigo-500"
-            value={selectedClass}
-            onChange={(e) => {
-              const classId = e.target.value;
-              setSelectedClass(classId);
-              setSelectedAssignmentDetails(null);
-              if (classId) {
-                socket.emit("join_class", classId);
-              }
-            }}
-          >
-            <option value="">Select a Class</option>
-            {teacherClassList?.data?.map((cls) => (
-              <option key={cls._id} value={cls._id}>
-                {cls.className}
-              </option>
-            ))}
-          </select>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8 bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.015)]">
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Select Class</label>
+            <select
+              className="w-full px-4 py-3.5 border border-slate-100 rounded-xl bg-slate-50 text-sm font-semibold text-slate-700 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all cursor-pointer"
+              value={selectedClass}
+              onChange={(e) => {
+                const classId = e.target.value;
+                setSelectedClass(classId);
+                setSelectedAssignmentDetails(null);
+                if (classId) {
+                  socket.emit("join_class", classId);
+                }
+              }}
+            >
+              <option value="">Choose Class...</option>
+              {teacherClassList?.data?.map((cls) => (
+                <option key={cls._id} value={cls._id}>
+                  {cls.className}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <select
-            className="p-2 border rounded-lg bg-white shadow-sm outline-none focus:ring-2 focus:ring-indigo-500"
-            value={selectedAssignmentDetails?._id || ""}
-            onChange={handleAssignmentChange}
-            disabled={!selectedClass}
-          >
-            <option value="">Select an Assignment</option>
-            {selectedTeacherAssignments.map((assignment) => (
-              <option key={assignment._id} value={assignment._id}>
-                {assignment.title || assignment._id}
-              </option>
-            ))}
-          </select>
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Select Assignment</label>
+            <select
+              className="w-full px-4 py-3.5 border border-slate-100 rounded-xl bg-slate-50 text-sm font-semibold text-slate-700 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              value={selectedAssignmentDetails?._id || ""}
+              onChange={handleAssignmentChange}
+              disabled={!selectedClass}
+            >
+              <option value="">Choose Assignment...</option>
+              {selectedTeacherAssignments.map((assignment) => (
+                <option key={assignment._id} value={assignment._id}>
+                  {assignment.title || assignment._id}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {selectedAssignmentDetails ?
           <TeacherKanbanBoard assignmentDetails={selectedAssignmentDetails} />
-        : <div className="text-center mt-20 text-slate-400">
-            Please select a class and an assignment to monitor progress.
+        : <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-dashed border-slate-200/80">
+            <div className="bg-slate-50 p-4 rounded-xl mb-4 text-slate-300 border border-slate-100">
+              <Layers size={32} />
+            </div>
+            <p className="text-slate-400 text-sm font-semibold tracking-wide text-center px-4">
+              Please select a class and an assignment to monitor progress.
+            </p>
           </div>
         }
 
@@ -121,37 +133,50 @@ function AssignmentPage() {
   }
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-extrabold text-slate-800">
-          My Kanban Board
-        </h1>
-        <select
-          className="p-2 border rounded-lg bg-white shadow-sm outline-none"
-          value={selectedClass}
-          onChange={(e) => {
-            const classId = e.target.value;
-            setSelectedClass(classId);
-            if (classId) {
-              socket.emit("join_class", classId);
-            }
-          }}
-        >
-          <option value="">Select a Class</option>
-          {studentClassList?.data?.map((cls) => (
-            <option key={cls._id} value={cls._id}>
-              {cls.className}
-            </option>
-          ))}
-        </select>
+    <div className="p-0 bg-[#FAFAFC] font-['Poppins',sans-serif] text-slate-800 antialiased">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <KanbanSquare className="text-blue-500" size={22} /> My Kanban Board
+          </h1>
+          <p className="text-slate-400 text-sm mt-1 font-medium tracking-wide">
+            Manage, update, and track your personalized task items.
+          </p>
+        </div>
+        <div className="flex flex-col gap-1.5 min-w-[200px]">
+          <select
+            className="w-full px-4 py-3 border border-slate-200/80 rounded-xl bg-white text-sm font-semibold text-slate-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 shadow-sm transition-all cursor-pointer"
+            value={selectedClass}
+            onChange={(e) => {
+              const classId = e.target.value;
+              setSelectedClass(classId);
+              if (classId) {
+                socket.emit("join_class", classId);
+              }
+            }}
+          >
+            <option value="">Select a Class</option>
+            {studentClassList?.data?.map((cls) => (
+              <option key={cls._id} value={cls._id}>
+                {cls.className}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+
       {selectedClass ?
         <KanbanBoard
           initialData={studentRes.data?.data || []}
           classId={selectedClass}
         />
-      : <div className="text-center mt-20 text-slate-400">
-          Please select a class.
+      : <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-dashed border-slate-200/80">
+          <div className="bg-slate-50 p-4 rounded-xl mb-4 text-slate-300 border border-slate-100">
+            <Layers size={32} />
+          </div>
+          <p className="text-slate-400 text-sm font-semibold tracking-wide text-center px-4">
+            Please select a class to view assignments.
+          </p>
         </div>
       }
     </div>

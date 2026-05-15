@@ -4,37 +4,36 @@ import { motion } from "framer-motion";
 
 const Loading = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] w-full space-y-4">
+    <div className="flex flex-col items-center justify-center min-h-[400px] w-full space-y-5 font-['Poppins',sans-serif] antialiased">
       <div className="relative flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-slate-100 rounded-full"></div>
+        {/* Background track ring */}
+        <div className="w-14 h-14 border-[3px] border-slate-100 rounded-full"></div>
         
+        {/* Rotating accent arc ring */}
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="absolute w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"
+          className="absolute w-14 h-14 border-[3px] border-blue-500 border-t-transparent rounded-full"
         ></motion.div>
 
+        {/* Central fading pulse icon instead of dual animation overlap */}
         <motion.div
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="absolute text-blue-500"
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+          className="absolute text-blue-500/80"
         >
-          <Loader2 size={20} className="animate-spin" />
+          <Loader2 size={18} strokeWidth={2.5} />
         </motion.div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-center"
-      >
-        <p className="text-slate-500 font-medium tracking-wide text-sm">
-          Fetching Dashboard Data...
+      <div className="text-center space-y-1">
+        <p className="text-slate-800 font-semibold tracking-wide text-sm">
+          Fetching Dashboard Data
         </p>
-        <p className="text-slate-400 text-xs mt-1 italic">
-          Just a moment
+        <p className="text-slate-400 text-xs font-medium tracking-wide">
+          Just a moment...
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 };

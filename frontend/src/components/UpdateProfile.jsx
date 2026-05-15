@@ -6,7 +6,7 @@ import {
 } from "../services/userAPI";
 import toast, { Toaster } from "react-hot-toast";
 import Loading from "../components/Loading";
-import { User, Phone, CheckCircle, ArrowLeft } from "lucide-react";
+import { User, Phone, CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function UpdateProfile() {
@@ -33,7 +33,6 @@ function UpdateProfile() {
     },
   });
 
-  // Data fetch ayyaka form fields ni current values tho fill cheyadam
   useEffect(() => {
     if (profile) {
       formik.setValues({
@@ -46,97 +45,111 @@ function UpdateProfile() {
   if (fetchLoading) return <Loading />;
 
   return (
-    <div className="p-8 bg-white min-h-screen">
-      <Toaster />
-
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-bold mb-8 transition-colors"
-      >
-        <ArrowLeft size={20} />
-        Back to Profile
-      </button>
+    <div className="p-6 md:p-10 bg-[#FAFAFC] min-h-screen font-['Poppins',sans-serif] text-slate-800 antialiased selection:bg-blue-100">
+      <Toaster 
+        position="top-right" 
+        toastOptions={{
+          style: {
+            background: "#0F172A",
+            color: "#F8FAFC",
+            borderRadius: "14px",
+            fontSize: "14px",
+            fontWeight: "500",
+          }
+        }}
+      />
 
       <div className="max-w-xl mx-auto">
-        <div className="mb-10 text-center lg:text-left">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="group inline-flex items-center gap-2 text-slate-400 hover:text-blue-500 font-semibold text-sm mb-8 transition-colors duration-200"
+        >
+          <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+          <span>Back to Profile</span>
+        </button>
+
+        <div className="mb-10">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Update Profile
           </h1>
-          <p className="text-slate-500 font-medium">
+          <p className="text-slate-400 text-sm mt-1.5 font-medium tracking-wide">
             Keep your account information accurate and up to date.
           </p>
         </div>
 
-        <form onSubmit={formik.handleSubmit} className="space-y-8">
-          {/* Name Field */}
-          <div className="flex flex-col gap-2 group">
-            <label className="text-[11px] font-black text-slate-400 uppercase tracking-[2.5px] ml-1">
-              Full Name
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
-                <User size={20} />
+        <div className="bg-white rounded-2xl p-8 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.015)]">
+          <form onSubmit={formik.handleSubmit} className="space-y-6">
+            {/* Name Field */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1 block">
+                Full Name
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-300 group-focus-within:text-blue-500 transition-colors duration-200">
+                  <User size={18} />
+                </div>
+                <input
+                  name="name"
+                  type="text"
+                  onChange={formik.handleChange}
+                  value={formik.values.name}
+                  placeholder="Enter your full name"
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-100 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all duration-200 text-sm font-medium text-slate-800 placeholder:text-slate-300"
+                />
               </div>
-              <input
-                name="name"
-                type="text"
-                onChange={formik.handleChange}
-                value={formik.values.name}
-                placeholder="Enter your full name"
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 outline-none transition-all font-bold text-slate-700"
-              />
             </div>
-          </div>
 
-          {/* Phone Field */}
-          <div className="flex flex-col gap-2 group">
-            <label className="text-[11px] font-black text-slate-400 uppercase tracking-[2.5px] ml-1">
-              Phone Number
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
-                <Phone size={20} />
+            {/* Phone Field */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1 block">
+                Phone Number
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-300 group-focus-within:text-blue-500 transition-colors duration-200">
+                  <Phone size={18} />
+                </div>
+                <input
+                  name="phone"
+                  type="text"
+                  onChange={formik.handleChange}
+                  value={formik.values.phone}
+                  placeholder="Enter 10-digit number"
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border border-slate-100 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all duration-200 text-sm font-medium text-slate-800 placeholder:text-slate-300"
+                />
               </div>
-              <input
-                name="phone"
-                type="text"
-                onChange={formik.handleChange}
-                value={formik.values.phone}
-                placeholder="Enter 10-digit number"
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 outline-none transition-all font-bold text-slate-700"
-              />
             </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="pt-6 flex flex-col sm:flex-row gap-4">
-            <button
-              type="submit"
-              disabled={updateLoading}
-              className="flex-1 flex items-center justify-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg hover:bg-indigo-700 active:scale-95 transition-all shadow-xl shadow-indigo-100 disabled:opacity-70"
-            >
-              {updateLoading ? (
-                "Saving Changes..."
-              ) : (
-                <>
-                  <CheckCircle size={22} />
-                  Save Updates
-                </>
-              )}
-            </button>
+            {/* Action Buttons */}
+            <div className="pt-4 flex flex-col sm:flex-row gap-3">
+              <button
+                type="submit"
+                disabled={updateLoading}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-500 text-white rounded-xl font-bold text-sm hover:bg-blue-600 active:scale-[0.99] transition-all duration-200 shadow-xl shadow-blue-100 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {updateLoading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Saving Changes...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle size={16} />
+                    <span>Save Updates</span>
+                  </>
+                )}
+              </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                navigate("/profile");
-              }}
-              className="px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black hover:bg-slate-200 transition-all"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+              <button
+                type="button"
+                onClick={() => navigate("/profile")}
+                className="px-6 py-3.5 bg-white border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-xl font-bold text-sm transition-all active:scale-[0.99]"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

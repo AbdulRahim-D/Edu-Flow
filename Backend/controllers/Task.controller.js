@@ -147,7 +147,6 @@ const updateAssignmentGrade = async (req, res) => {
       { $set: { status, grade, feedback } },
       { new: true, runValidators: true },
     );
-    console.log(updatedAssignmentGrade);
 
     if (!updatedAssignmentGrade)
       return res.status(404).json({ message: "Assignment not found" });

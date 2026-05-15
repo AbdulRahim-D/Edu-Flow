@@ -47,11 +47,11 @@ function DashboardLayout() {
         duration: 6000,
       });
     };
-   const handleDeletedAssignment=(deletedInfo)=>{
-    toast.success(`${deletedInfo?.title} is deleted`,{
-      duration:6000,
-    });
-   }
+    const handleDeletedAssignment=(deletedInfo)=>{
+     toast.success(`${deletedInfo?.title} is deleted`,{
+       duration:6000,
+     });
+    }
 
     if (user.role === "Teacher") {
       socket.on("student_joined", handleStudentJoined);
@@ -73,28 +73,45 @@ function DashboardLayout() {
   }, [user?.role, socket]);
 
   return (
-    <div className="flex min-h-screen bg-slate-50 overflow-hidden">
+    <div className="flex min-h-screen bg-[#FAFAFC] overflow-hidden font-['Poppins',sans-serif] antialiased text-slate-800 selection:bg-blue-50">
+   
       <Toaster
         position="bottom-left"
         containerStyle={{
           zIndex: 99999,
-          bottom: 40,
+          bottom: 32,
+          left: 32,
         }}
         toastOptions={{
           style: {
-            background: "#1e293b",
-            color: "#fff",
+            background: "#0F172A",
+            color: "#F8FAFC", 
             borderRadius: "16px",
-            padding: "12px 24px",
+            padding: "16px 24px",
+            fontSize: "14px",
             fontWeight: "600",
+            letterSpacing: "0.015em",
+            boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+            border: "1px solid rgba(59, 130, 246, 0.2)", // Subtle Blue-500 glass tint border
+            maxWidth: "380px",
+          },
+          success: {
+            iconTheme: {
+              primary: "#3b82f6", 
+              secondary: "#ffffff",
+            },
           },
         }}
       />
 
-      <Sidebar />
+      <div className="flex-shrink-0">
+        <Sidebar />
+      </div>
 
-      <main className="flex-1 overflow-y-auto h-screen">
-        <div className="max-w-7xl mx-auto p-4 lg:p-8">
+      <main className="flex-1 overflow-y-auto h-screen relative bg-[#FAFAFC]">
+        <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-blue-50/20 to-transparent pointer-events-none -z-10" />
+        
+        <div className="max-w-[1400px] mx-auto p-6 lg:p-10 transition-all duration-300">
           <Outlet />
         </div>
       </main>
