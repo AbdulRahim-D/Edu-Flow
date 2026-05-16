@@ -57,7 +57,7 @@ function ProfilePage() {
               
               <div className="relative">
                 <img 
-                  src={profile?.profileImage ? `http://localhost:6142${profile.profileImage}` : `https://ui-avatars.com/api/?name=${profile?.name}&background=3b82f6&color=fff&size=200`}
+                  src={profile?.profileImage ? `https://edu-flow-be.onrender.com${profile.profileImage}` : `https://ui-avatars.com/api/?name=${profile?.name}&background=3b82f6&color=fff&size=200`}
                   alt="Profile" 
                   className={`w-44 h-44 rounded-[2.2rem] object-cover border-4 border-white shadow-xl bg-white transition-all duration-300 ${isUpdating ? 'opacity-40 scale-95' : 'group-hover:scale-[1.01]'}`}
                 />
