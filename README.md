@@ -1,4 +1,3 @@
-
 # Edu-Flow
 
 > **A Real-Time Academic Workflow & Assignment Tracker**
@@ -14,7 +13,7 @@ Edu-Flow is a comprehensive academic tracking platform designed to bridge the co
 
 ---
 
-## Key Features
+## 🚀 Key Features
 
 **For Educators**
 * **Workspace Management:** Create secure, isolated digital classrooms accessible via unique class codes.
@@ -34,7 +33,7 @@ Edu-Flow is a comprehensive academic tracking platform designed to bridge the co
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 * **Client-Side:** React.js (Vite), Tailwind CSS v4, Redux Toolkit, react-beautiful-dnd, Framer Motion.
 * **Server-Side:** Node.js, Express.js.
@@ -44,80 +43,14 @@ Edu-Flow is a comprehensive academic tracking platform designed to bridge the co
 
 ---
 
-## Getting Started
+## 🤝 Development Team
 
-Follow these instructions to set up the project locally for development and testing purposes.
-
-### Prerequisites
-* Node.js installed on your local machine.
-* A running instance of MongoDB (Local or Atlas).
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/AbdulRahim-D/Edu-Flow.git
-cd edu-flow
-
-```
-
-### 2. Backend Setup
-
-Navigate to the server directory and install dependencies:
-
-```bash
-cd backend
-npm install
-
-```
-
-Create a `.env` file in the root of the `backend` directory:
-
-```env
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_super_secret_key
-FRONTEND_URL=http://localhost:5173
-
-```
-
-Start the backend development server:
-
-```bash
-node index
-
-```
-
-### 3. Frontend Setup
-
-Open a new terminal session, navigate to the client directory, and install dependencies:
-
-```bash
-cd frontend
-npm install
-
-```
-
-Create a `.env` file in the root of the `frontend` directory:
-
-```env
-VITE_API_BASE_URL=http://localhost:5000/api
-
-```
-
-Start the Vite development server:
-
-```bash
-npm run dev
-
-```
-
----
-
-## Team
-
-Developed as a comprehensive End-to-End Academic Project by:
+Developed as a comprehensive End-to-End Academic Project by a dedicated team of full-stack developers:
 
 * **Abdul Rahim Dudekula** – Backend Architecture & Real-time Integration
+  * 📧 [abdulrahimcc4516@gmail.com](mailto:abdulrahimcc4516@gmail.com)
+  * 💼 [LinkedIn Profile](https://www.linkedin.com/in/abdul-rahim-dudekula)
 * **Naveen Manjula** – Frontend Development & UI/UX Design
 * **Trinadh Kora** – Database Design & DevOps
 
-*Note: This application was built to demonstrate advanced MERN stack concepts, including WebSocket integration, robust state management with RTK Query, and strict backend middleware security.*
+> **Note for Evaluators:** This application was built to demonstrate advanced MERN stack concepts, including WebSocket integration, robust state management with RTK Query, and strict backend middleware security.
