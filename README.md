@@ -52,5 +52,6 @@ Developed as a comprehensive End-to-End Academic Project by a dedicated team of 
   * 💼 [LinkedIn Profile](https://www.linkedin.com/in/abdul-rahim-dudekula)
 * **Naveen Manjula** – Frontend Development & UI/UX Design
 * **Trinadh Kora** – Database Design & DevOps
+* **Kishore Patnam** – Application Testing
 
 > **Note for Evaluators:** This application was built to demonstrate advanced MERN stack concepts, including WebSocket integration, robust state management with RTK Query, and strict backend middleware security.
