@@ -7,7 +7,7 @@ import {
 import KanbanColumn from "./KanbanColumn";
 import Loading from "./Loading";
 import toast, { Toaster } from "react-hot-toast";
-import { X, Send, LayoutGrid, AlertTriangle } from "lucide-react";
+import { X, Send, LayoutGrid, AlertTriangle, Lock } from "lucide-react";
 import { socket } from "../socket";
 
 function KanbanBoard({ classId }) {
@@ -29,7 +29,7 @@ function KanbanBoard({ classId }) {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("grade_updated", (gradedAssignment) => {
+    const handleGradeUpdate = (gradedAssignment) => {
       setLocalAssignments((prev) => {
         return prev.map((item) =>
           item._id === gradedAssignment._id ?
@@ -38,9 +38,10 @@ function KanbanBoard({ classId }) {
         );
       });
       toast.success(`Task Graded: ${gradedAssignment.assignmentTitle}`);
-    });
+    };
 
-    return () => socket.off("grade_updated");
+    socket.on("grade_updated", handleGradeUpdate);
+    return () => socket.off("grade_updated", handleGradeUpdate);
   }, [socket]);
 
   if (isLoading) return <Loading />;
@@ -53,6 +54,12 @@ function KanbanBoard({ classId }) {
 
   const columns = ["To-Do", "In-Progress", "Submitted", "Graded"];
 
+  // Helper function to check if deadline is crossed
+  const isDeadlineCrossed = (deadline) => {
+    if (!deadline) return false;
+    return new Date() > new Date(deadline);
+  };
+
   const onDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
     if (!destination || destination.droppableId === source.droppableId) return;
@@ -60,6 +67,14 @@ function KanbanBoard({ classId }) {
     if (destination.droppableId === "Graded") {
       setGradeMessage("Update to Grade: Only teachers can grade!");
       setTimeout(() => setGradeMessage(""), 3000);
+      return;
+    }
+
+    // Find the current dragged task
+    const currentTask = localAssignments.find((t) => t._id === draggableId);
+
+    if (destination.droppableId === "Submitted" && isDeadlineCrossed(currentTask?.deadline)) {
+      toast.error("SUBMISSION LOCKED: Deadline has passed!");
       return;
     }
 
@@ -93,14 +108,11 @@ function KanbanBoard({ classId }) {
       return toast.error("Submission link is required!");
 
     const currentTask = localAssignments.find((t) => t._id === pendingTaskId);
-    const deadlineDate = new Date(currentTask.deadline);
-    const today = new Date();
-
-    if (today > deadlineDate) {
-      toast.error("LATE SUBMISSION: Deadline Exceeded!", {
-        icon: "⚠️",
-        style: { borderRadius: "10px", background: "#333", color: "#fff" },
-      });
+    
+    if (isDeadlineCrossed(currentTask?.deadline)) {
+      toast.error("Submission blocked. Deadline passed!");
+      setShowModal(false);
+      return;
     }
 
     const updatedTasks = localAssignments.map((task) =>
@@ -124,6 +136,9 @@ function KanbanBoard({ classId }) {
       toast.error("Submission failed!");
     }
   };
+
+  const targetTask = localAssignments.find((t) => t._id === pendingTaskId);
+  const isCurrentModalLocked = isDeadlineCrossed(targetTask?.deadline);
 
   return (
     <div className="h-[calc(100vh-180px)] flex flex-col overflow-hidden font-['Poppins',sans-serif] text-slate-800 antialiased selection:bg-blue-50">
@@ -173,10 +188,19 @@ function KanbanBoard({ classId }) {
           <div className="w-full max-w-md bg-white h-screen shadow-[0_0_50px_rgba(0,0,0,0.05)] p-8 flex flex-col animate-in slide-in-from-right duration-300 border-l border-slate-100/80">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-                  Submit Work
+                <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                  {isCurrentModalLocked ? (
+                    <>
+                      <Lock size={18} className="text-rose-500" />
+                      <span className="text-slate-500 line-through">Submit Work</span>
+                    </>
+                  ) : (
+                    "Submit Work"
+                  )}
                 </h2>
-                <p className="text-xs font-medium text-slate-400 tracking-wide mt-0.5">Provide your assignment workspace link.</p>
+                <p className="text-xs font-medium text-slate-400 tracking-wide mt-0.5">
+                  {isCurrentModalLocked ? "This assignment is no longer accepting submissions." : "Provide your assignment workspace link."}
+                </p>
               </div>
               <button
                 onClick={() => setShowModal(false)}
@@ -187,13 +211,22 @@ function KanbanBoard({ classId }) {
             </div>
             
             <div className="space-y-3 mb-6">
-              <p className="text-amber-600 bg-amber-50/50 border border-amber-100/50 px-4 py-3 rounded-xl text-xs font-medium leading-relaxed">
-                Careful! Submitting after the assigned target deadline passes logs a late marker to the instructor timeline view.
-              </p>
-              <div className="flex items-start gap-2.5 text-rose-600 bg-rose-50/50 border border-rose-100/50 px-4 py-3 rounded-xl text-xs font-medium leading-relaxed">
-                <AlertTriangle size={16} className="shrink-0 mt-0.5" />
-                <span><strong>WARNING:</strong> Double-check your submission field before submitting. Providing an invalid or broken link may lead to 0 marks or an immediate task failure.</span>
-              </div>
+              {isCurrentModalLocked ? (
+                <div className="flex items-start gap-2.5 text-rose-600 bg-rose-50 border border-rose-100 px-4 py-3 rounded-xl text-xs font-semibold leading-relaxed">
+                  <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+                  <span>SUBMISSION DEADLINE EXCEEDED: You can no longer upload or change files for this track. Please approach your teacher directly.</span>
+                </div>
+              ) : (
+                <>
+                  <p className="text-amber-600 bg-amber-50/50 border border-amber-100/50 px-4 py-3 rounded-xl text-xs font-medium leading-relaxed">
+                    Careful! Submitting after the assigned target deadline passes logs a late marker to the instructor timeline view.
+                  </p>
+                  <div className="flex items-start gap-2.5 text-rose-600 bg-rose-50/50 border border-rose-100/50 px-4 py-3 rounded-xl text-xs font-medium leading-relaxed">
+                    <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                    <span><strong>WARNING:</strong> Double-check your submission field before submitting. Providing an invalid or broken link may lead to 0 marks or an immediate task failure.</span>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -203,8 +236,9 @@ function KanbanBoard({ classId }) {
                 </label>
                 <input
                   type="text"
-                  placeholder="Paste your link or text work here..."
-                  className="w-full px-4 py-3.5 bg-slate-50/50 border border-slate-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 rounded-2xl outline-none text-sm font-medium transition-all duration-200"
+                  disabled={isCurrentModalLocked}
+                  placeholder={isCurrentModalLocked ? "Submission is locked." : "Paste your link or text work here..."}
+                  className="w-full px-4 py-3.5 bg-slate-50/50 border border-slate-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 rounded-2xl outline-none text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   value={submissionLink}
                   onChange={(e) => setSubmissionLink(e.target.value)}
                 />
@@ -213,7 +247,8 @@ function KanbanBoard({ classId }) {
               <div className="pt-4 border-t border-slate-100 space-y-3">
                 <button
                   onClick={handleFinalSubmit}
-                  className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-blue-100 transition-all active:scale-[0.99]"
+                  disabled={isCurrentModalLocked}
+                  className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-blue-100 transition-all active:scale-[0.99] disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
                 >
                   <Send size={15} /> <span>Submit Assignment</span>
                 </button>
