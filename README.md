@@ -82,7 +82,7 @@ FRONTEND_URL=http://localhost:5173
 Start the backend development server:
 
 ```bash
-npm run dev
+node index
 
 ```
 
@@ -121,5 +121,3 @@ Developed as a comprehensive End-to-End Academic Project by:
 * **Trinadh Kora** – Database Design & DevOps
 
 *Note: This application was built to demonstrate advanced MERN stack concepts, including WebSocket integration, robust state management with RTK Query, and strict backend middleware security.*
-
-```
