@@ -41,7 +41,7 @@ io.on("connection", (socket) => {
 
 
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://edu-flow-six.vercel.app",
     methods:["GET","POST","PUT","PATCH","DELETE"],
     credentials:true
 }))
