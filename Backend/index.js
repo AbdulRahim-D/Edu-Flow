@@ -18,7 +18,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "https://edu-flow-six.vercel.app/",
+        origin: "https://edu-flow-six.vercel.app",
         credentials:true,
         methods: ["GET", "POST", "PATCH", "PUT", "DELETE"]
     }
