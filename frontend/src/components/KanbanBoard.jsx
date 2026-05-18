@@ -11,7 +11,7 @@ import { X, Send, LayoutGrid, AlertTriangle, Lock } from "lucide-react";
 import { socket } from "../socket";
 
 function KanbanBoard({ classId }) {
-  const { data: response, isLoading } = useGetStudentAssignmentQuery();
+  const { data: response, isLoading, refetch } = useGetStudentAssignmentQuery();
   const [updateStatus] = useUpdateAssignmentStatusMutation();
 
   const [localAssignments, setLocalAssignments] = useState([]);
@@ -50,14 +50,21 @@ function KanbanBoard({ classId }) {
       toast.error(deletedData.message || "An assignment was removed by the teacher!");
     };
 
+    const handleAssignmentCreated = (newAssignment) => {
+      toast.success(`New Assignment Assigned: ${newAssignment.title} 📚`);
+      refetch(); 
+    };
+
     socket.on("grade_updated", handleGradeUpdate);
     socket.on("assignment_deleted", handleAssignmentDeleted);
+    socket.on("assignment_created", handleAssignmentCreated);
 
     return () => {
       socket.off("grade_updated", handleGradeUpdate);
       socket.off("assignment_deleted", handleAssignmentDeleted);
+      socket.off("assignment_created", handleAssignmentCreated);
     };
-  }, [socket]);
+  }, [socket, refetch]); 
 
   if (isLoading) return <Loading />;
 
@@ -69,7 +76,6 @@ function KanbanBoard({ classId }) {
 
   const columns = ["To-Do", "In-Progress", "Submitted", "Graded"];
 
-  // Helper function to check if deadline is crossed
   const isDeadlineCrossed = (deadline) => {
     if (!deadline) return false;
     return new Date() > new Date(deadline);
@@ -85,7 +91,6 @@ function KanbanBoard({ classId }) {
       return;
     }
 
-    // Find the current dragged task
     const currentTask = localAssignments.find((t) => t._id === draggableId);
 
     if (destination.droppableId === "Submitted" && isDeadlineCrossed(currentTask?.deadline)) {
