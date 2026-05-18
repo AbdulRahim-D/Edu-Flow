@@ -1,18 +1,42 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGetStudentAssignmentQuery } from '../services/taskAPI';
 import { Clock, AlertCircle, ChevronRight, Sparkles, Calendar } from 'lucide-react';
 import Loading from './Loading';
 import { useNavigate } from 'react-router-dom';
+import { socket } from '../socket';
 
 function StudentOverview() {
-  const { data: response, isLoading } = useGetStudentAssignmentQuery();
+  //  1. Extract 'refetch' from the query
+  const { data: response, isLoading, refetch } = useGetStudentAssignmentQuery();
   const navigate = useNavigate();
+
+  //  2. Listen to Socket Events for New/Urgent Tasks sync
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleSyncTasks = () => {
+      refetch();
+    };
+
+    socket.on("assignment_created", handleSyncTasks);
+    socket.on("assignment_deleted", handleSyncTasks);
+    socket.on("task_submitted", handleSyncTasks);
+    socket.on("grade_updated", handleSyncTasks);
+
+    return () => {
+      socket.off("assignment_created", handleSyncTasks);
+      socket.off("assignment_deleted", handleSyncTasks);
+      socket.off("task_submitted", handleSyncTasks);
+      socket.off("grade_updated", handleSyncTasks);
+    };
+  }, [socket, refetch]);
 
   if (isLoading) return <Loading />;
 
   const assignments = response?.data || [];
   const now = new Date();
 
+  // Logic to calculate urgent tasks (Due within 48 hours and not submitted/graded)
   const urgentTasks = assignments.filter((task) => {
     if (task.status === "Graded" || task.status === "Submitted") return false;
     const deadline = new Date(task.deadline);
@@ -20,6 +44,7 @@ function StudentOverview() {
     return diffInHours > 0 && diffInHours <= 48;
   });
 
+  // Logic to calculate new tasks (Created within the last 24 hours)
   const newTasks = assignments.filter((task) => {
     const createdAt = new Date(task.createdAt || Date.now());
     const diffInHours = (now - createdAt) / (1000 * 60 * 60);

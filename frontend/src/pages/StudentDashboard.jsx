@@ -9,10 +9,33 @@ import { socket } from "../socket";
 import StudentOverview from "../components/StudentOverview";
 
 function StudentDashboard() {
-  const { data: assignmentData, isLoading: assignmentLoading } =
-    useGetStudentAssignmentQuery();
-  const { data: classData, isLoading: classLoading } = useGetClassQuery();
+  const { data: assignmentData, isLoading: assignmentLoading, refetch: refetchAssignments } = useGetStudentAssignmentQuery();
+  const { data: classData, isLoading: classLoading, refetch: refetchClasses } = useGetClassQuery();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleSyncData = () => {
+      refetchAssignments();
+      refetchClasses();
+    };
+
+  
+    socket.on("assignment_created", handleSyncData);
+    socket.on("assignment_deleted", handleSyncData);
+    socket.on("task_submitted", handleSyncData);
+    socket.on("grade_updated", handleSyncData);
+    socket.on("student_joined", handleSyncData); 
+
+    return () => {
+      socket.off("assignment_created", handleSyncData);
+      socket.off("assignment_deleted", handleSyncData);
+      socket.off("task_submitted", handleSyncData);
+      socket.off("grade_updated", handleSyncData);
+      socket.off("student_joined", handleSyncData);
+    };
+  }, [socket, refetchAssignments, refetchClasses]);
 
   if (assignmentLoading || classLoading) return <Loading />;
 

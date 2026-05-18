@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   useGetTeacherAssignmentQuery,
@@ -8,17 +8,15 @@ import { useGetClassQuery } from "../services/classAPI";
 import Loading from "../components/Loading";
 import KanbanBoard from "../components/KanbanBoard";
 import TeacherKanbanBoard from "../components/TeacherKanbanBoard";
-import { useFormik } from "formik";
 import { socket } from "../socket";
 import { KanbanSquare, Layers, FolderKanban } from "lucide-react";
 
 function AssignmentPage() {
   const { user } = useSelector((state) => state.auth);
   const [selectedClass, setSelectedClass] = useState("");
+  const [selectedAssignmentDetails, setSelectedAssignmentDetails] = useState(null);
 
-  const [selectedAssignmentDetails, setSelectedAssignmentDetails] =
-    useState(null);
-
+  // RTK Queries
   const teacherRes = useGetTeacherAssignmentQuery(undefined, {
     skip: user.role !== "Teacher",
   });
@@ -28,11 +26,6 @@ function AssignmentPage() {
       skip: user.role !== "Teacher",
     });
 
-  const selectedTeacherAssignments =
-    teacherRes?.data?.data?.filter(
-      (assignment) => assignment.classId._id === selectedClass,
-    ) || [];
-
   const studentRes = useGetClassWiseAssignmentsQuery(selectedClass, {
     skip: user.role !== "Student" || !selectedClass,
   });
@@ -41,6 +34,11 @@ function AssignmentPage() {
     useGetClassQuery(undefined, {
       skip: user.role !== "Student",
     });
+
+  const selectedTeacherAssignments =
+    teacherRes?.data?.data?.filter(
+      (assignment) => assignment.classId._id === selectedClass,
+    ) || [];
 
   const handleAssignmentChange = (e) => {
     const assignmentId = e.target.value;
@@ -53,6 +51,31 @@ function AssignmentPage() {
     );
     setSelectedAssignmentDetails(assignmentObj);
   };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleSyncData = () => {
+      if (user.role === "Teacher" && teacherRes.refetch) {
+        teacherRes.refetch();
+      } else if (user.role === "Student" && studentRes.refetch) {
+        studentRes.refetch();
+      }
+    };
+
+    socket.on("grade_updated", handleSyncData);
+    socket.on("task_submitted", handleSyncData);
+    socket.on("assignment_created", handleSyncData);
+    socket.on("assignment_deleted", handleSyncData);
+
+    return () => {
+      socket.off("grade_updated", handleSyncData);
+      socket.off("task_submitted", handleSyncData);
+      socket.off("assignment_created", handleSyncData);
+      socket.off("assignment_deleted", handleSyncData);
+    };
+  }, [socket, user.role, teacherRes, studentRes]);
+
 
   const isLoading =
     user.role === "Teacher" ?

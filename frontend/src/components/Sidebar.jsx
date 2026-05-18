@@ -17,7 +17,6 @@ function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  // Optional enhancement: useLocation can help dynamically color active routes
   const location = useLocation();
 
   const dashboardPath = user?.role === "Teacher" ? "/teacher_dashboard" : "/student_dashboard";
@@ -25,7 +24,6 @@ function Sidebar() {
   return (
     <div className="w-64 h-screen bg-white flex flex-col p-6 border-r border-slate-100 font-['Poppins',sans-serif] selection:bg-blue-50">
       
-      {/* 🏷️ Brand Logo Header */}
       <div className="flex items-center gap-2.5 mb-8 px-2">
         <div className="w-8 h-8 bg-blue-500 rounded-xl flex items-center justify-center text-white font-black text-sm italic shadow-md shadow-blue-100">
           E
@@ -35,7 +33,6 @@ function Sidebar() {
         </h1>
       </div>
 
-      {/* 🧭 Navigation Menu */}
       <nav className="flex flex-col gap-1.5 flex-1">
         
         {/* Dashboard Link */}
@@ -91,7 +88,6 @@ function Sidebar() {
         </Link>
       </nav>
 
-      {/* 👤 User Card & Logout Section */}
       <div className="mt-auto pt-6 border-t border-slate-100 flex flex-col gap-4">
         
         {/* User Card */}
