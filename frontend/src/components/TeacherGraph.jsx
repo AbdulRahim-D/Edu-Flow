@@ -196,7 +196,7 @@ function TeacherGraph() {
                                 <span className="text-sm font-semibold tracking-wide">Loading Analytics...</span>
                             </div>
                         ) : statsData.length > 0 ? (
-                            <div className="flex-1 min-h-[300px] w-full mt-auto">
+                            <div className="flex-1 min-h-75 w-full mt-auto">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={statsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />

@@ -29,15 +29,13 @@ const createAssignment = async (req, res) => {
     });
     const savedAssignment = await Assignment.insertMany(studentsAssignments);
 
-
     req.io.to(classId).emit("assignment_created", {
       title: title,
-      description:description,
+      description: description,
       subject: subject,
       deadline: deadline,
-      classId:savedAssignment[0].classId,
-      assignedBy:{name:req.user.name}
-
+      classId: savedAssignment[0].classId,
+      assignedBy: { name: req.user.name },
     });
 
     res
@@ -196,28 +194,42 @@ const classWiseAssignment = async (req, res) => {
 
 const assignmentStats = async (req, res) => {
   try {
-    const { assignmentId } = req.params; // Ikkada Assignment ID ni teesukuntunnam
+    const { assignmentId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(assignmentId)) {
-      return res.status(400).json({ message: "Invalid Assignment Format" });
-    }
+    let titleToSearch = "";
 
-    const assignmentExists = await Assignment.findOne({ _id: assignmentId });
+    if (mongoose.Types.ObjectId.isValid(assignmentId)) {
+      const assignmentExists = await Assignment.findById(assignmentId);
 
-    if (!assignmentExists) {
-      return res.status(404).json({ message: "Assignment not found" });
-    }
+      if (!assignmentExists) {
+        return res.status(404).json({ message: "Assignment not found" });
+      }
+      if (assignmentExists.assignedBy.toString() !== req.user.id.toString()) {
+        return res
+          .status(403)
+          .json({ message: "Access Denied! Not your assignment." });
+      }
 
-    if (assignmentExists.assignedBy.toString() !== req.user.id.toString()) {
-      return res
-        .status(403)
-        .json({ message: "Access Denied! Not your assignment." });
+      titleToSearch = assignmentExists.title;
+    } else {
+      titleToSearch = assignmentId;
+
+      const ownershipCheck = await Assignment.findOne({
+        title: titleToSearch,
+        assignedBy: req.user.id,
+      });
+
+      if (!ownershipCheck) {
+        return res
+          .status(403)
+          .json({ message: "Access Denied or Assignment not found!" });
+      }
     }
 
     const stats = await Assignment.aggregate([
       {
         $match: {
-          title: assignmentExists.title,
+          title: titleToSearch,
           assignedBy: new mongoose.Types.ObjectId(req.user.id),
         },
       },
@@ -335,7 +347,7 @@ const deleteAssignment = async (req, res) => {
 
     req.io.to(classId.toString()).emit("assignment_deleted", {
       title: title,
-      description:description,
+      description: description,
       message: "An assignment was removed by the teacher",
     });
 
