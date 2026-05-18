@@ -1,17 +1,18 @@
 import { useFormik } from "formik";
-import React from "react";
+import React, { useState } from "react";
 import { useLoginMutation } from "../services/authAPI";
 import toast, { Toaster } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../features/authSlice";
 import { useNavigate, Link } from "react-router-dom";
 import { loginSchema } from "../schema/SchemaValidation";
-import { Lock, Mail, Loader2, ArrowRight } from "lucide-react";
+import { Lock, Mail, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 function Login() {
   const [login, { isLoading }] = useLoginMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const loginForm = useFormik({
     initialValues: {
@@ -56,7 +57,7 @@ function Login() {
           </p>
         </div>
 
-        {/* 🛡️ Login Card Container */}
+        
         <div className="bg-white rounded-[2rem] shadow-[0_12px_40px_rgba(0,0,0,0.03)] p-10 border border-slate-100">
           <form className="space-y-6" onSubmit={loginForm.handleSubmit}>
             
@@ -87,7 +88,7 @@ function Login() {
               )}
             </div>
 
-            {/* Password Field */}
+            {/* Password Field with Show/Hide Toggle */}
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1 block">
                 Password
@@ -97,15 +98,23 @@ function Login() {
                   <Lock size={18} strokeWidth={2} />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"} // ✨ Dynamic Type
                   placeholder="••••••••"
-                  className={`w-full pl-12 pr-4 py-4 bg-slate-50/50 border rounded-2xl outline-none transition-all duration-200 text-sm placeholder:text-slate-300 text-slate-900 ${
+                  className={`w-full pl-12 pr-12 py-4 bg-slate-50/50 border rounded-2xl outline-none transition-all duration-200 text-sm placeholder:text-slate-300 text-slate-900 ${
                     loginForm.touched.password && loginForm.errors.password
                       ? "border-red-200 bg-red-50/40 focus:ring-4 focus:ring-red-50"
                       : "border-slate-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                   }`}
                   {...loginForm.getFieldProps("password")}
                 />
+                
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-500 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} strokeWidth={2} /> : <Eye size={18} strokeWidth={2} />}
+                </button>
               </div>
               {loginForm.touched.password && loginForm.errors.password && (
                 <p className="text-xs font-medium text-red-500 ml-1 mt-1">
@@ -134,7 +143,7 @@ function Login() {
             </button>
           </form>
 
-          {/* 🔗 Redesigned Form Footer */}
+        
           <div className="mt-8 pt-6 border-t border-slate-50 text-center">
             <p className="text-slate-400 text-sm font-medium tracking-wide">
               Don't have an account?{" "}

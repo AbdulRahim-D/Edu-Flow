@@ -1,14 +1,17 @@
 import { useFormik } from "formik";
-import React from "react";
+import React, { useState } from "react";
 import { signupSchema } from "../schema/SchemaValidation";
 import { useSignupMutation } from "../services/authAPI";
 import { useNavigate, Link } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import { User, Mail, Lock, UserCircle, Loader2, ArrowRight } from "lucide-react";
+import { User, Mail, Lock, UserCircle, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react"; // ✨ Eye, EyeOff imported
 
 function Signup() {
   const [signup, { isLoading }] = useSignupMutation();
   const navigate = useNavigate();
+
+  
+  const [showPassword, setShowPassword] = useState(false);
 
   const signupForm = useFormik({
     initialValues: {
@@ -34,18 +37,18 @@ function Signup() {
       <Toaster position="top-center" />
 
       <div className="max-w-md w-full">
-        {/* Top Header Context */}
+       
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 bg-white border border-slate-200/60 rounded-2xl shadow-sm mb-4">
             <span className="text-blue-500 font-extrabold text-xl tracking-tight">E</span>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Get Started</h1>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Create Account</h1>
           <p className="text-slate-400 text-sm mt-1.5 font-medium tracking-wide">
-            Create your account to join <span className="text-blue-500 font-semibold">Edu-Flow</span>
+            Register a new <span className="text-blue-500 font-semibold">Edu-Flow</span> profile
           </p>
         </div>
 
-        {/* Signup Card Container */}
+       
         <div className="bg-white rounded-[2rem] shadow-[0_12px_40px_rgba(0,0,0,0.03)] p-10 border border-slate-100">
           <form className="space-y-5" onSubmit={signupForm.handleSubmit}>
             
@@ -60,7 +63,7 @@ function Signup() {
                 </div>
                 <input
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="Full Name"
                   className={`w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border rounded-2xl outline-none transition-all duration-200 text-sm font-medium placeholder:text-slate-300 text-slate-900 ${
                     signupForm.touched.name && signupForm.errors.name
                       ? "border-red-200 bg-red-50/40 focus:ring-4 focus:ring-red-50"
@@ -109,21 +112,30 @@ function Signup() {
                   <Lock size={18} strokeWidth={2} />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"} // ✨ Dynamic Type
                   placeholder="••••••••"
-                  className={`w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border rounded-2xl outline-none transition-all duration-200 text-sm placeholder:text-slate-300 text-slate-900 ${
+                  className={`w-full pl-12 pr-12 py-3.5 bg-slate-50/50 border rounded-2xl outline-none transition-all duration-200 text-sm placeholder:text-slate-300 text-slate-900 ${
                     signupForm.touched.password && signupForm.errors.password
                       ? "border-red-200 bg-red-50/40 focus:ring-4 focus:ring-red-50"
                       : "border-slate-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
                   }`}
                   {...signupForm.getFieldProps("password")}
                 />
+                
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-500 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
               {signupForm.touched.password && signupForm.errors.password && (
                 <p className="text-xs font-medium text-red-500 ml-1 mt-1">{signupForm.errors.password}</p>
               )}
             </div>
 
+            {/* Role Selection */}
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1 block">
                 Register as
