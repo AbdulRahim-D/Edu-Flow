@@ -55,6 +55,7 @@ const joinClass = async (req, res) => {
         className:joinClass.className,
         studentId: req.user.id,
         updatedClass:joinClass,
+        classId:joinClass._id
 
       });
     }

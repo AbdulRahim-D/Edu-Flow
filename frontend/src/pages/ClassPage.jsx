@@ -29,28 +29,57 @@ function ClassPage() {
     }
   }, [classData]);
 
+  // Real-Time Socket Listener
   useEffect(() => {
-    socket.on("student_joined", (studentDetails) => {
+    if (!socket) return;
+
+    const handleStudentJoined = (studentDetails) => {
+      // 1. Toast message for Teacher
       if (user?.role === "Teacher") {
         toast.success(`${studentDetails.studentName} joined ${studentDetails.className}! 🎓`, {
-            icon: '🚀',
-            duration: 4000
+          icon: '🚀',
+          duration: 4000
         });
       }
-    });
+
+      // 2. ⚡ UPDATE LOCAL STATE: Count automatically peruguthundi
+      setLocalClasses((prevClasses) => 
+        prevClasses.map((cls) => {
+          // Backend nundi vastunna classId leda className tho match chesthunnam
+          if (cls._id === studentDetails.classId || cls.className === studentDetails.className) {
+            return {
+              ...cls,
+              // Kotha student ni array loki push chesthunnam (count peragadaniki)
+              students: [...(cls.students || []), studentDetails.studentId || "new_student"]
+            };
+          }
+          return cls;
+        })
+      );
+    };
+
+    socket.on("student_joined", handleStudentJoined);
 
     return () => {
-      socket.off("student_joined");
+      socket.off("student_joined", handleStudentJoined);
     };
-  }, [user?.role]);
+  }, [socket, user?.role]);
 
   const handleJoinClass = async () => {
     try {
       const classCode = classCodeRef.current?.value;
       if (!classCode) return toast.error("Enter the 6-Digit Class Code");
-      await joinClass({ classCode }).unwrap();
+      
+      const res = await joinClass({ classCode }).unwrap();
       toast.success("Joined the class successfully! 🎉");
       classCodeRef.current.value = "";
+      
+      if (res?.data) {
+        setLocalClasses((prev) => {
+          const isExists = prev.find(c => c._id === res.data._id);
+          return isExists ? prev : [...prev, res.data];
+        });
+      }
     } catch (error) {
       toast.error(error.data?.message || "Failed to join class");
     }
@@ -61,9 +90,13 @@ function ClassPage() {
       if (!classForm.className || !classForm.subjectName) {
         return toast.error("Please fill all fields!");
       }
-      await createClass(classForm).unwrap();
+      const res = await createClass(classForm).unwrap();
       toast.success("Class created successfully! 🚀");
       setClassForm({ className: "", subjectName: "" });
+
+      if(res?.data) {
+        setLocalClasses(prev => [res.data, ...prev]);
+      }
     } catch (error) {
       toast.error(error.data?.message || "Failed to create class");
     }

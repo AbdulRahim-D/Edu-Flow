@@ -94,7 +94,7 @@ function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 <ModernField label="Full Legal Name" value={profile?.name} icon={<User size={16}/>} />
                 <ModernField label="Primary Email" value={profile?.email} icon={<Mail size={16}/>} />
-                <ModernField label="Contact Number" value={profile?.phone} icon={<Phone size={16}/>} />
+                <ModernField label="Contact Number" value={profile?.phone || "Update your Phone No"} icon={<Phone size={16}/>} />
                 <ModernField label="System Reference ID" value={profile?._id} icon={<Hash size={16}/>} />
                 <ModernField label="Account Status" value="Active User" icon={<CheckCircle2 size={16}/>} isSpecial />
                 <ModernField label="Assigned Role" value={profile?.role} icon={<ShieldCheck size={16}/>} isSpecial />

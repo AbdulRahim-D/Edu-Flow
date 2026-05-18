@@ -40,8 +40,23 @@ function KanbanBoard({ classId }) {
       toast.success(`Task Graded: ${gradedAssignment.assignmentTitle}`);
     };
 
+    const handleAssignmentDeleted = (deletedData) => {
+      setLocalAssignments((prev) => 
+        prev.filter((item) => 
+          item.title !== deletedData.title || 
+          item.description !== deletedData.description
+        )
+      );
+      toast.error(deletedData.message || "An assignment was removed by the teacher!");
+    };
+
     socket.on("grade_updated", handleGradeUpdate);
-    return () => socket.off("grade_updated", handleGradeUpdate);
+    socket.on("assignment_deleted", handleAssignmentDeleted);
+
+    return () => {
+      socket.off("grade_updated", handleGradeUpdate);
+      socket.off("assignment_deleted", handleAssignmentDeleted);
+    };
   }, [socket]);
 
   if (isLoading) return <Loading />;
